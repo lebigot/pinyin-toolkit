@@ -202,9 +202,6 @@ def showMainPage(SimpTrad, DeckSeen):
            "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</></b></p>" + freq_html + "<br><br>" + specific_html
     python_actions = [("toggleDeckSeen", lambda: showMainPage(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: showMainPage(not SimpTrad and 1 or 0, DeckSeen))]
 
-    log.info("HTML: " + html)
-    log.info("Actions: " + str(specific_python_actions))
-
     mw.help.showText(html, py=dict(python_actions + freq_python_actions + specific_python_actions))
 
 
@@ -212,7 +209,6 @@ def showMainPage(SimpTrad, DeckSeen):
 #  Construct tables showing the missing and seen Hanzi.            #
 ####################################################################
 def onShowMissingHanzi(grouphanzi, hanzi, backaction):
-    log.info("Missing Hanzi link clicked!")
     return buildHanziPage("Missing Hanzi", [h for h in grouphanzi if h not in hanzi], backaction)
 
 def onShowHaveHanzi(grouphanzi, hanzi, backaction):
