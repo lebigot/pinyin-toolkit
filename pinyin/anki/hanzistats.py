@@ -25,7 +25,8 @@ import codecs
 import traceback
 import sys
 
-import pinyin.config
+import hooks
+
 from pinyin.statisticsdata import *
 from pinyin.logger import log
 import pinyin.utils
@@ -37,23 +38,30 @@ import pinyin.utils
 FILE = ""
 
 
-####################################################################
-#  Add Hanzi statisticts choice to the Tool menu.                  #
-####################################################################
-def init_hook():
-    mw.mainWin.HanziStats = QtGui.QAction('Hanzi Statistics by PyTK', mw)
-    mw.mainWin.HanziStats.setStatusTip('Hanzi Statistics by PyTK')
-    mw.mainWin.HanziStats.setEnabled(True)
-    mw.mainWin.HanziStats.setIcon(QtGui.QIcon("../icons/hanzi.png"))
-    # the following line can be changed to customise your default view with the first zero after run representing simp/trad and the second seen/deck
-    mw.connect(mw.mainWin.HanziStats, QtCore.SIGNAL('triggered()'), lambda: showMainPage(0, 0))
-    mw.mainWin.menuTools.addAction(mw.mainWin.HanziStats)
+class HanziStatsHook(hooks.Hook):
+    def install(self):
+        log.info("Installing Hanzi statistics hook")
+        
+        # NB: must store reference to action on the class to prevent it being GCed
+        self.action = QtGui.QAction('Hanzi Statistics by PyTK', mw)
+        self.action.setStatusTip('Hanzi Statistics by PyTK')
+        self.action.setEnabled(True)
+        self.action.setIcon(QtGui.QIcon("../icons/hanzi.png"))
+        
+        def finish(x):
+            html, python_actions = x
+            mw.help.showText(html, py=dict([(k, lambda action=action: finish(action())) for k, action in python_actions]))
+        
+        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: finish(hanziStats(self.config)))
+        self.mw.mainWin.menuTools.addAction(self.action)
+        
+        log.info('Hanzi statistics plugin loaded')
 
 
 ####################################################################
 #  Return all unique Hanzi in the current deck.                    #
 ####################################################################
-def get_deckHanzi(DeckSeen):
+def get_deckHanzi(config, DeckSeen):
     hanzi = set()
     
     # Bail out early if no deck is present yet
@@ -62,7 +70,7 @@ def get_deckHanzi(DeckSeen):
     
     # Get Hanzi from the database
     # TODO: pass in the actual config object to determine the Expression field names
-    hanzi_ids = mw.deck.s.column0("select id from fieldModels where name IN %s" % pinyin.utils.toSqlLiteral(pinyin.config.Config().candidateFieldNamesByKey['expression']))
+    hanzi_ids = mw.deck.s.column0("select id from fieldModels where name IN %s" % pinyin.utils.toSqlLiteral(config.candidateFieldNamesByKey['expression']))
     for hanzi_id in hanzi_ids:
         if DeckSeen == 0:
             hanzis = mw.deck.s.column0("select value from cards, fields where fieldModelID = :hid AND cards.factId = fields.factId AND cards.reps > 1", hid=hanzi_id)
@@ -70,10 +78,6 @@ def get_deckHanzi(DeckSeen):
             hanzis = mw.deck.s.column0("select value from fields where fieldModelID = :hid", hid=hanzi_id)
     
         hanzi.update(pinyin.utils.concat([[c for c in u if pinyin.utils.isHanzi(c)] for u in hanzis]))
-    
-    # Additionally get Hanzi from file
-    if FILE:
-        hanzi.update(get_fileHanzi(FILE))
     
     return hanzi
 
@@ -91,8 +95,8 @@ def get_fileHanzi(file):
 ####################################################################
 #  Return all Hanzi we want to know about.                         #
 ####################################################################
-def get_allHanzi(DeckSeen):
-    hanzi = get_deckHanzi(DeckSeen)
+def get_allHanzi(config, DeckSeen):
+    hanzi = get_deckHanzi(config, DeckSeen)
     if FILE:
         hanzi.update(get_fileHanzi(FILE))
     return hanzi
@@ -127,13 +131,13 @@ def get_genericstats(title, groups, unclassified_name, hanzi, backaction):
         percentage = len(grouphanzi) != 0 and round(groupcount*100.0 / len(grouphanzi), 2) or 0.0
         html += u"<tr><td>%(group)s</td><td><a href=py:have%(hint)s>%(seen)s</a> of <a href=py:missing%(hint)s>%(total)s</a></a></td><td>%(percentage)s%%</td></tr>" \
                   % { "group" : group, "hint" : linkhint, "seen" : groupcount, "total" : len(grouphanzi), "percentage" : percentage }
-        python_actions += [("have" + linkhint, lambda grouphanzi=grouphanzi: onShowHaveHanzi(grouphanzi, hanzi, backaction)),
-                           ("missing" + linkhint, lambda grouphanzi=grouphanzi: onShowMissingHanzi(grouphanzi, hanzi, backaction))]
+        python_actions += [("have" + linkhint, lambda grouphanzi=grouphanzi: showHaveHanzi(grouphanzi, hanzi, backaction)),
+                           ("missing" + linkhint, lambda grouphanzi=grouphanzi: showMissingHanzi(grouphanzi, hanzi, backaction))]
 
     if unclassified_name:
         linkhint = makelinkhint(title + unclassified_name)
         html += "<tr><td>%s</td><td><a href=py:other%s>%d</a></td><td></td></tr>" % (unclassified_name, linkhint, unclassifiedcount)
-        python_actions += [("other" + linkhint, lambda: onShowOtherHanzi("".join([grouphanzi for _groupname, grouphanzi in groups]), hanzi, backaction))]
+        python_actions += [("other" + linkhint, lambda: showOtherHanzi("".join([grouphanzi for _groupname, grouphanzi in groups]), hanzi, backaction))]
 
     return (html + "</table>", python_actions)
 
@@ -179,7 +183,10 @@ def get_topstats(hanzi, backaction):
 #  "Main" function, run when Hanzi statistics is clicked in the    #
 #  Tool menu.                                                      #
 ####################################################################
-def showMainPage(SimpTrad, DeckSeen):
+def hanziStats(config):
+    return showMainPage(config, config.prefersimptrad == "trad" and 1 or 0, 0)
+
+def showMainPage(config, SimpTrad, DeckSeen):
     # Set the prompt for seen cards vs whole deck toggle
     if DeckSeen == 0:
         seentype = "Data Set: <a href=py:toggleDeckSeen>seen cards only</a></small>"
@@ -192,32 +199,32 @@ def showMainPage(SimpTrad, DeckSeen):
     else:
         ctype = "Character Set: <a href=py:toggleSimpTrad>Traditional</a>"
 
-    hanzi = get_allHanzi(DeckSeen)
+    hanzi = get_allHanzi(config, DeckSeen)
     
-    backaction = lambda: showMainPage(SimpTrad, DeckSeen)
+    backaction = lambda: showMainPage(config, SimpTrad, DeckSeen)
     freq_html, freq_python_actions = get_freqstats(SimpTrad, hanzi, backaction)
     specific_html, specific_python_actions = get_specificstats(SimpTrad, hanzi, backaction)
   
     html = "<h1>Hanzi Statistics</h1><h4>General</h4><br>" + ctype + "<br>" + seentype + \
            "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</></b></p>" + freq_html + "<br><br>" + specific_html
-    python_actions = [("toggleDeckSeen", lambda: showMainPage(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: showMainPage(not SimpTrad and 1 or 0, DeckSeen))]
+    python_actions = [("toggleDeckSeen", lambda: showMainPage(config, SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: showMainPage(config, not SimpTrad and 1 or 0, DeckSeen))]
 
-    mw.help.showText(html, py=dict(python_actions + freq_python_actions + specific_python_actions))
+    return html, (python_actions + freq_python_actions + specific_python_actions)
 
 
 ####################################################################
 #  Construct tables showing the missing and seen Hanzi.            #
 ####################################################################
-def onShowMissingHanzi(grouphanzi, hanzi, backaction):
-    return buildHanziPage("Missing Hanzi", [h for h in grouphanzi if h not in hanzi], backaction)
+def showMissingHanzi(grouphanzi, hanzi, backaction):
+    return showHanziPage("Missing Hanzi", [h for h in grouphanzi if h not in hanzi], backaction)
 
-def onShowHaveHanzi(grouphanzi, hanzi, backaction):
-    return buildHanziPage("Seen Hanzi", [h for h in grouphanzi if h in hanzi], backaction)
+def showHaveHanzi(grouphanzi, hanzi, backaction):
+    return showHanziPage("Seen Hanzi", [h for h in grouphanzi if h in hanzi], backaction)
 
-def onShowOtherHanzi(allgrouphanzi, hanzi, backaction):
-    return buildHanziPage("Other Hanzi", [h for h in hanzi if h not in allgrouphanzi], backaction)
+def showOtherHanzi(allgrouphanzi, hanzi, backaction):
+    return showHanziPage("Other Hanzi", [h for h in hanzi if h not in allgrouphanzi], backaction)
 
-def buildHanziPage(title, hanzi, backaction):
+def showHanziPage(title, hanzi, backaction):
     html = "<h1>" + title + "</h1>"
     html += "<a href=py:back>Go back</a><br><br>"
     html += '<font size=12 face="SimSun"><b>'
@@ -225,12 +232,4 @@ def buildHanziPage(title, hanzi, backaction):
         html += '<a href="http://www.mdbg.net/chindict/chindict.php?page=worddictbasic&wdqb=' + h + '&wdrst=0&wdeac=1">' + h + '</a>'
     html += "</b></font>"
     
-    mw.help.showText(html, py={"back": backaction})
-
-if __name__ == "__main__":
-  print "Don't run me.  I'm a plugin!"
-
-else:
-  mw.addHook('init', init_hook)
-  log.info('HanziStats plugin loaded')
-
+    return html, [("back", backaction)]

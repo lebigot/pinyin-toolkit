@@ -23,7 +23,8 @@ import statsandgraphs
 import hanzistats
 
 hookbuilders = hooks.hookbuilders + [
-    statsandgraphs.HanziGraphHook
+    statsandgraphs.HanziGraphHook,
+    hanzistats.HanziStatsHook
   ]
 
 class PinyinToolkit(object):
