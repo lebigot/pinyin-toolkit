@@ -107,42 +107,44 @@ def get_genericstats(title, groups, unclassified_name, hanzi, backaction):
     return (html + "</table>", python_actions)
 
 ####################################################################
-#  Return HTML formatted statistics on seen Hanzi in the frequent  #
-#  Hanzi lists.                                                    #
+#  Construct tables showing the missing and seen Hanzi.            #
 ####################################################################
+def showMissingHanzi(grouphanzi, hanzi, backaction):
+    return showHanziPage("Missing Hanzi", [h for h in grouphanzi if h not in hanzi], backaction)
+
+def showHaveHanzi(grouphanzi, hanzi, backaction):
+    return showHanziPage("Seen Hanzi", [h for h in grouphanzi if h in hanzi], backaction)
+
+def showOtherHanzi(allgrouphanzi, hanzi, backaction):
+    return showHanziPage("Other Hanzi", [h for h in hanzi if h not in allgrouphanzi], backaction)
+
+def showHanziPage(title, hanzi, backaction):
+    html = "<h1>" + title + "</h1>"
+    html += "<a href=py:back>Go back</a><br><br>"
+    html += '<font size=12 face="SimSun"><b>'
+    for h in hanzi:
+        html += '<a href="http://www.mdbg.net/chindict/chindict.php?page=worddictbasic&wdqb=' + h + '&wdrst=0&wdeac=1">' + h + '</a>'
+    html += "</b></font>"
+
+    return html, [("back", backaction)]
+
+###############################################
+#  Possible statistics we are interested in   #
+###############################################
 def get_freqstats(SimpTrad, hanzi, backaction):
     return get_genericstats("Character frequency data", [hanzi500sSimp, hanzi500sTrad][SimpTrad], "3500++", hanzi, backaction)
 
-####################################################################
-#  Return HTML formatted statistics on seen Hanzi in the 4 HSK     #
-#  Hanzi lists.                                                    #
-####################################################################
 def get_hskstats(hanzi, backaction):
     html, python_actions = get_genericstats("HSK character statistics", hanzihsk[:-1], None, hanzi, backaction)
     return (html + "<p><i>Note: This is not the same as HSK vocabulary.</i></p>", python_actions)
 
-############################################################################
-#  Return HTML formatted statistics on seen Hanzi in the 9 TW Grade Levels #
-############################################################################
 def get_twstats(hanzi, backaction):
     return get_genericstats("TW Ministry of Education List Statistics", hanzitaiwanstandard, None, hanzi, backaction)
 
-###############################################
-#  Choose an appropriate set of stats to show #
-###############################################
-def get_specificstats(SimpTrad, hanzi, backaction):
-    if SimpTrad==0:
-        return get_hskstats(hanzi, backaction)
-    else:
-        return get_twstats(hanzi, backaction)
-
-####################################################################
-#  Return HTML formatted statistics on seen Hanzi in the 4 TOP     #
-#  Hanzi lists.                                                    #
-####################################################################
 # TODO: use this function
 def get_topstats(hanzi, backaction):
     return get_genericstats("TOP Statistics (Characters)", hanzitop, None, hanzi, backaction)
+
 
 ####################################################################
 #  "Main" function, run when Hanzi statistics is clicked in the    #
@@ -166,34 +168,14 @@ def hanziStats(config, session):
 
         backaction = lambda: go(SimpTrad, DeckSeen)
         freq_html, freq_python_actions = get_freqstats(SimpTrad, hanzi, backaction)
-        specific_html, specific_python_actions = get_specificstats(SimpTrad, hanzi, backaction)
+        specific_html, specific_python_actions = SimpTrad == 0 and get_hskstats(hanzi, backaction) or get_twstats(hanzi, backaction)
 
         html = "<h1>Hanzi Statistics</h1><h4>General</h4><br>" + ctype + "<br>" + seentype + \
-               "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</></b></p>" + freq_html + "<br><br>" + specific_html
+               "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</u></b></p>" + \
+               freq_html + "<br><br>" + \
+               specific_html
         python_actions = [("toggleDeckSeen", lambda: go(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: go(not SimpTrad and 1 or 0, DeckSeen))]
 
         return html, (python_actions + freq_python_actions + specific_python_actions)
   
     return go(config.prefersimptrad == "trad" and 1 or 0, 0)
-
-####################################################################
-#  Construct tables showing the missing and seen Hanzi.            #
-####################################################################
-def showMissingHanzi(grouphanzi, hanzi, backaction):
-    return showHanziPage("Missing Hanzi", [h for h in grouphanzi if h not in hanzi], backaction)
-
-def showHaveHanzi(grouphanzi, hanzi, backaction):
-    return showHanziPage("Seen Hanzi", [h for h in grouphanzi if h in hanzi], backaction)
-
-def showOtherHanzi(allgrouphanzi, hanzi, backaction):
-    return showHanziPage("Other Hanzi", [h for h in hanzi if h not in allgrouphanzi], backaction)
-
-def showHanziPage(title, hanzi, backaction):
-    html = "<h1>" + title + "</h1>"
-    html += "<a href=py:back>Go back</a><br><br>"
-    html += '<font size=12 face="SimSun"><b>'
-    for h in hanzi:
-        html += '<a href="http://www.mdbg.net/chindict/chindict.php?page=worddictbasic&wdqb=' + h + '&wdrst=0&wdeac=1">' + h + '</a>'
-    html += "</b></font>"
-    
-    return html, [("back", backaction)]
