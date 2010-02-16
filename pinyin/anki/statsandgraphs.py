@@ -32,7 +32,7 @@ class HanziGraphHook(hooks.Hook):
         u'HSK Elementary'   : (u'#CC0066', "Element."),
         u'HSK Intermediate' : (u'#990099', "Intermed."),
         u'HSK Advanced'     : ('#6600CC', "Advanced"),
-        u'Non-HSK'          : (u'#3300FF', "Non-HSK")        
+        u'Non-HSK'          : (u'#3300FF', "Non-HSK")
       }
     
     def __init__(self, *args, **kwargs):
@@ -149,23 +149,12 @@ class HanziGraphHook(hooks.Hook):
         and fields.fieldModelId = fieldModels.id
         and fieldModels.name in %s
         order by firstAnswered
-        """ % (anki.utils.ids2str(self.suitableModelIds()), self.toSqlLiteral(self.config.candidateFieldNamesByKey['expression'])))
+        """ % (anki.utils.ids2str(self.suitableModelIds()), pinyin.utils.toSqlLiteral(self.config.candidateFieldNamesByKey['expression'])))
         return self.__hanzidatacache
 
     def invalidateHanziData(self):
         # Used when refreshing
         self.__hanzidatacache = None
-
-    def toSqlLiteral(self, thing):
-        if isinstance(thing, list):
-            return "(" + ",".join([self.toSqlLiteral(item) for item in thing]) + ")"
-        elif isinstance(thing, basestring):
-            # TODO: SQL escape??
-            return u'"%s"' % thing
-        elif isinstance(thing, int) or isinstance(thing, long):
-            return unicode(thing)
-        else:
-            raise ValueError("Unsupported thing %s in SQL call", thing)
 
     def setupHanziGraph(self, graphwindow):
         log.info("Beginning setup of Hanzi graph on the graph window")

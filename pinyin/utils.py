@@ -571,3 +571,15 @@ def bind_none(mx, f):
 
 def let(*stuff):
     return stuff[-1](*(stuff[:-1]))
+
+
+def toSqlLiteral(thing):
+    if isinstance(thing, list):
+        return "(" + ",".join([toSqlLiteral(item) for item in thing]) + ")"
+    elif isinstance(thing, basestring):
+        # TODO: SQL escape??
+        return u'"%s"' % thing
+    elif isinstance(thing, int) or isinstance(thing, long):
+        return unicode(thing)
+    else:
+        raise ValueError("Unsupported thing %s in SQL call", thing)
