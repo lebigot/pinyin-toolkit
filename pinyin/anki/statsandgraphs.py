@@ -28,11 +28,11 @@ import pinyin.utils
 class HanziGraphHook(hooks.Hook):
     # Color Gradient for HSK score: http://gotomy.com/color.html to find a smooth gradient
     gradeColorsShortNames = {
-        u'HSK Basic'        : (u'#FF0033', "Basic"),
-        u'HSK Elementary'   : (u'#CC0066', "Element."),
-        u'HSK Intermediate' : (u'#990099', "Intermed."),
-        u'HSK Advanced'     : ('#6600CC', "Advanced"),
-        u'Non-HSK'          : (u'#3300FF', "Non-HSK")
+        u'HSK Basic (甲)'        : (u'#FF0033', "Basic"),
+        u'HSK Elementary (乙)'   : (u'#CC0066', "Element."),
+        u'HSK Intermediate (丙)' : (u'#990099', "Intermed."),
+        u'HSK Advanced (丁)'     : ('#6600CC', "Advanced"),
+        u'Non-HSK'              : (u'#3300FF', "Non-HSK")
       }
     
     def __init__(self, *args, **kwargs):
