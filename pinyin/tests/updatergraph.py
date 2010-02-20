@@ -101,6 +101,19 @@ class TestUpdaterGraphUpdaters(object):
             "trad" : u'', "simp" : u''
           })
 
+    def testUnknownWord(self):
+        config = dict(forceexpressiontobesimptrad = False, tonedisplay = "tonified",
+                       detectmeasurewords = True, fallbackongoogletranslate = False,
+                       tonecolors = [u"#ff0000", u"#ffaa00", u"#00aa00", u"#0000ff", u"#545454"])
+        self.assertProduces({ "expression" : u"音响的", "mwfieldinfact" : True }, config, {
+            "reading" : u'??',
+            "meaning" : u'',
+            "mw" : u'',
+            "audio" : u'',
+            "color" : u'??',
+            "trad" : u'', "simp" : u''
+          })
+
     def testPreservesWhitespace(self):
         config = dict(forceexpressiontobesimptrad = False, tonedisplay = "tonified", colorizedpinyingeneration = False)
         self.assertProduces({ "expression" : u"\t书" }, config, {
