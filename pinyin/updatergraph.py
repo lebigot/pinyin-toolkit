@@ -118,19 +118,19 @@ class GraphBasedUpdater(object):
         
         self.updaters = [
                 ("simptrad", self.expression2simptrad, ("expression",)),
-                ("trad", lambda x: x["simp"] != x["trad"] and x["trad"] or "", ("simptrad",)),
-                ("simp", lambda x: x["simp"] != x["trad"] and x["simp"] or "", ("simptrad",)),
+                ("trad", liftm_none(lambda x: x["simp"] != x["trad"] and x["trad"] or ""), ("simptrad",)),
+                ("simp", liftm_none(lambda x: x["simp"] != x["trad"] and x["simp"] or ""), ("simptrad",)),
                 ("expression", lambda x: x, ("simp",)),
                 ("expression", lambda x: x, ("trad",)),
         
                 ("dictmeaningsandsource", self.expression2dictmeaningssource, ("expression",)),
-                ("dictmeanings", fst, ("dictmeaningsandsource",)),
-                ("dictmeaningssource", snd, ("dictmeaningsandsource",)),
+                ("dictmeanings", liftm_none(fst), ("dictmeaningsandsource",)),
+                ("dictmeaningssource", liftm_none(snd), ("dictmeaningsandsource",)),
                 ("dictmws", self.expression2dictmws, ("expression",)),
                 
                 ("mergeddictmeaningsmws", self.dictmeaningsmws2mergeddictmeaningsmws, ("dictmeanings", "dictmws", "mwfieldinfact")),
-                ("mergeddictmeanings", fst, ("mergeddictmeaningsmws",)),
-                ("mergeddictmws", snd, ("mergeddictmeaningsmws",)),
+                ("mergeddictmeanings", liftm_none(fst), ("mergeddictmeaningsmws",)),
+                ("mergeddictmws", liftm_none(snd), ("mergeddictmeaningsmws",)),
                 ("meaning", self.dictmeaningsmws2meaning, ("expression", "mergeddictmeanings", "dictmeaningssource",)), # Need expression for Hanzi masking
         
                 #("mergeddictmeaningsmws", self.meaning2mergeddictmeaningsmws, ["meaning"]),
@@ -151,6 +151,7 @@ class GraphBasedUpdater(object):
     updateablefields = property(lambda self: set([field for field, _, _ in self.updaters]))
     dictionary = property(lambda self: self.dictionaries(self.config.dictlanguage))
 
+    @liftm_none
     def expression2simptrad(self, expression):
         result = {}
         for charmode, glangcode in [("simp", "zh-CN"), ("trad", "zh-TW")]:
@@ -167,6 +168,7 @@ class GraphBasedUpdater(object):
         
         return result
 
+    @liftm_none
     def expression2dictmeaningssource(self, expression):
         dictmeaningssources = [
                 # Use CEDICT to get meanings
@@ -194,6 +196,7 @@ class GraphBasedUpdater(object):
         # No information available
         return None
 
+    @liftm_none
     def expression2dictmws(self, expression):
         # Currently, we only use CEDICT to discover the measure words. Note that we *always*
         # use the English dictionary, because it has the most comprehensive coverage of MWs.
@@ -202,11 +205,12 @@ class GraphBasedUpdater(object):
     def dictmeaningsmws2mergeddictmeaningsmws(self, dictmeanings, dictmws, mwfieldinfact):
         # If the user wants the measure words to be folded into the definition or there
         # is no MW field for us to split them out into, fold them in there
-        if not(self.config.detectmeasurewords) or not mwfieldinfact:
+        if dictmws and (not(self.config.detectmeasurewords) or not mwfieldinfact):
             return dictionary.combinemeaningsmws(dictmeanings, dictmws), []
         else:
             return dictmeanings, dictmws
 
+    @liftm_none
     def dictmeaningsmws2meaning(self, expression, dictmeanings, dictmeaningssource):
         # Consider sandhi in meanings - you never know, there might be some!
         dictmeanings = [transformations.tonesandhi(dictmeaning) for dictmeaning in dictmeanings]
@@ -233,6 +237,7 @@ class GraphBasedUpdater(object):
         # TODO
         raise NotImplementedError("meaning2mergeddictmeaningsmws: need parser")
 
+    @liftm_none
     def mergeddictmws2mw(self, mergeddictmws):
         # Concatenate the measure words together with - before we put them into the MW field
         return preparetokens(self.config, dictionary.flattenmeasurewords(mergeddictmws))
@@ -241,6 +246,7 @@ class GraphBasedUpdater(object):
         # TODO
         return NotImplementedError("mw2mergeddictmws: need parser")
 
+    @liftm_none
     def mergeddictmwdictreading2mwaudio(self, mergeddictmws, noundictreading):
         dictreading = []
         for _, mwpinyinwords in mergeddictmws:
@@ -259,6 +265,7 @@ class GraphBasedUpdater(object):
         # with the current implementation, but better safe than sorry.
         return generateaudio(self.notifier, self.mediamanager, self.config, transformations.tonesandhi(dictreading))
 
+    @liftm_none
     def expression2dictreading(self, expression):
         dictreadingsources = [
                 # Get the reading by considering the text as a (Western) number
@@ -275,20 +282,25 @@ class GraphBasedUpdater(object):
   
         raise AssertionError("The CEDICT reading lookup should always succeed, but it failed on %s" % expression)
 
+    @liftm_none
     def dictreading2reading(self, dictreading):
         # Put pinyin into lowercase before anything else is done to it
         # TODO: do we really want lower case here? If so, we should do it for colorized pinyin as well.
         return preparetokens(self.config, model.formatreadingfordisplay(dictreading)).lower()
 
+    @liftm_none
     def reading2dictreading(self, reading):
         return model.unformatreadingfordisplay(unpreparetokens(reading))
 
+    @liftm_none
     def expressiondictreading2color(self, expression, dictreading):
         return model.flatten(transformations.colorize(self.config.tonecolors, model.tonedcharactersfromreading(expression, dictreading)))
 
+    @liftm_none
     def dictreading2audio(self, dictreading):
         return generateaudio(self.notifier, self.mediamanager, self.config, dictreading)
 
+    @liftm_none
     def expression2weblinks(self, expression):
         # Generate a list of links to online dictionaries, etc to query the expression
         return u" ".join([u'[<a href="' + urltemplate.replace(u"{searchTerms}", urlescape(expression)) + u'" title="' + tooltip + u'">' + text + u'</a>]' for text, tooltip, urltemplate in self.config.weblinks])
@@ -349,7 +361,7 @@ def filledgraphforupdaters(all_updaters, fact, delta):
         # Set up each fillable graph field with a thunk computing the value
         for field, possiblefillers in cannowfill.items():
             def fillme(field=field, possiblefillers=possiblefillers):
-                # For preference, use a filler that will certainly return clean information (i.e. sort by the number of dirty inputs and prefer the first)
+                # For preference, use a filler that will certainly return clean information (i.e. sort by the number of dirty inputs and prefer the first - i.e. the one with fewer dirty inputs)
                 for fillerfunction, dirtyinputs, anyinputsdirty in sorted([(f, dirties(), len(dirties()) > 0) for f, dirties in possiblefillers], using(lambda x: x[2])):
                     if field not in fact or isblankfield(fact[field]) or anyinputsdirty:
                         # Don't know what the last value was or it may have changed: recompute.

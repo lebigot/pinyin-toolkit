@@ -569,6 +569,15 @@ def bind_none(mx, f):
     else:
         return None
 
+def sequence_none(mxs):
+    if count(mxs, pred=lambda mx: mx is None) != 0:
+        return None
+    else:
+        return mxs
+
+def liftm_none(f):
+    return lambda *mxs: bind_none(sequence_none(mxs), lambda xs: f(*xs))
+
 def let(*stuff):
     return stuff[-1](*(stuff[:-1]))
 

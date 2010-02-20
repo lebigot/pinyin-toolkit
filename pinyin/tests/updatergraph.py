@@ -106,12 +106,12 @@ class TestUpdaterGraphUpdaters(object):
                        detectmeasurewords = True, fallbackongoogletranslate = False,
                        tonecolors = [u"#ff0000", u"#ffaa00", u"#00aa00", u"#0000ff", u"#545454"])
         self.assertProduces({ "expression" : u"音响的", "mwfieldinfact" : True }, config, {
-            "reading" : u'??',
-            "meaning" : u'',
-            "mw" : u'',
+            "reading" : u'<span style="color:#ff0000">yīn</span> <span style="color:#00aa00">xiǎng</span> <span style="color:#545454">de</span>',
+            "meaning" : None,
+            "mw" : None,
             "audio" : u'',
-            "color" : u'??',
-            "trad" : u'', "simp" : u''
+            "color" : u'<span style="color:#ff0000">音</span><span style="color:#00aa00">响</span><span style="color:#545454">的</span>',
+            "trad" : u'音響的', "simp" : u'音响的'
           })
 
     def testPreservesWhitespace(self):
@@ -303,12 +303,12 @@ class TestUpdaterGraphUpdaters(object):
         config = dict(colorizedcharactergeneration = True, tonecolors = [u"#ff0000", u"#ffaa00", u"#00aa00", u"#0000ff", u"#545454"])
         
         for reading in [u"chi1 fan1", u"chī fān", u'<span style="color:#ff0000">chī</span> <span style="color:#ff0000">fān</span>']:
-            yield (lambda reading: self.assertProduces({ "reading" : reading, "expression" : u"吃饭" }, config, {
+            yield (lambda reading: self.assertProduces({ "reading" : reading }, config, {
                 "reading" : reading,
                 "color" : u'<span style="color:#ff0000">吃</span><span style="color:#ff0000">饭</span>'
-              }), reading)
+              }, fact={ "expression" : u"吃饭" }), reading)
 
-    def assertProduces(self, known, configdict, expected, mediapacks=None, alreadyimported=[], notifierassertion=None):
+    def assertProduces(self, known, configdict, expected, fact={}, mediapacks=None, alreadyimported=[], notifierassertion=None):
         if mediapacks == None:
             mediapacks = [media.MediaPack("Test", { "shu1.mp3" : "shu1.mp3", "shu1.ogg" : "shu1.ogg", "shui3.mp3" : "shui3.mp3",
                                                     "san1.mp3" : "san1.mp3", "qi1.ogg" : "qi1.ogg", "Kai1.mp3" : "location/Kai1.mp3",
@@ -319,7 +319,7 @@ class TestUpdaterGraphUpdaters(object):
         
         notifier = MockNotifier()
         gbu = GraphBasedUpdater(notifier, MockMediaManager(mediapacks, alreadyimported=alreadyimported), pinyin.config.Config(pinyin.utils.updated({ "dictlanguage" : "en" }, configdict)))
-        graph = gbu.filledgraph({}, known)
+        graph = gbu.filledgraph(fact, known)
         
         assert_dict_equal(dict([(key, graph[key][1]()) for key in expected.keys()]), expected, values_as_assertions=True)
         notifierassertion(notifier)
