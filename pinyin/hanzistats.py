@@ -34,7 +34,6 @@ def get_deckHanzi(config, session, DeckSeen):
     hanzi = set()
     
     # Get Hanzi from the database
-    # TODO: pass in the actual config object to determine the Expression field names
     hanzi_ids = session.column0("select id from fieldModels where name IN %s" % utils.toSqlLiteral(config.candidateFieldNamesByKey['expression']))
     for hanzi_id in hanzi_ids:
         if DeckSeen == 0:
