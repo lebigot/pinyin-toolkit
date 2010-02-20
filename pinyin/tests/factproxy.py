@@ -37,3 +37,24 @@ class FactProxyTest(unittest.TestCase):
         fact = { "Foo" : "Meh" }
         FactProxy({"key" : ["foo"]}, fact)["key"] = "Bye"
         self.assertEquals(fact, { "Foo" : "Bye" })
+
+class MarkingTest(unittest.TestCase):
+    def testBlankField(self):
+        self.assertTrue(isblankfield(""))
+        self.assertTrue(isblankfield("  \t "))
+    
+    def testGeneratedFieldGenerated(self):
+        self.assertTrue(isgeneratedfield("expression", markgeneratedfield("foo")))
+    
+    def testUngeneratedFieldUngenerated(self):
+        self.assertFalse(isgeneratedfield("expression", "foo"))
+    
+    def testWeblinksAlwaysGenerated(self):
+        self.assertTrue(isgeneratedfield("weblinks", ""))
+        self.assertTrue(isgeneratedfield("weblinks", "foooo"))
+    
+    def testMarkingUnmarkingIsIdentity(self):
+        self.assertEquals(unmarkgeneratedfield(markgeneratedfield("foo")), "foo")
+    
+    def testUnmarkingUnmarkedIdempotent(self):
+        self.assertEquals(unmarkgeneratedfield("foo"), "foo")

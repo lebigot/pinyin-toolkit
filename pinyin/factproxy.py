@@ -62,7 +62,7 @@ def unmarkgeneratedfield(value):
     if value.startswith(prefixgeneratedmarker):
         return value[len(prefixgeneratedmarker):]
     elif value.endswith(postfixgeneratedmarker):
-        return value[:len(postfixgeneratedmarker)]
+        return value[:-len(postfixgeneratedmarker)]
     else:
         return value
 
