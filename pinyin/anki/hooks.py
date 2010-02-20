@@ -98,6 +98,7 @@ class FocusHook(Hook):
             return te.toHtml()
         
         log.info("User moved focus from the field %s", field.name)
+        #log.info("Changed: %s. Normalised old: %r, Normalised new: %r", normaliseHtml(self.knownfieldcontents[field.name]) != normaliseHtml(field.value), normaliseHtml(self.knownfieldcontents[field.name]), normaliseHtml(field.value))
         
         # Check old field contents against remembered value to determine changed status..
         self.knownfieldcontents[field.name], fieldchanged = None, normaliseHtml(self.knownfieldcontents[field.name]) != normaliseHtml(field.value)
