@@ -38,7 +38,7 @@ def get_deckHanzi(config, session, DeckSeen):
     hanzi_ids = session.column0("select id from fieldModels where name IN %s" % utils.toSqlLiteral(config.candidateFieldNamesByKey['expression']))
     for hanzi_id in hanzi_ids:
         if DeckSeen == 0:
-            hanzis = session.column0("select value from cards, fields where fieldModelID = :hid AND cards.factId = fields.factId AND cards.reps > 1", hid=hanzi_id)
+            hanzis = session.column0("select value from cards, fields where fieldModelID = :hid AND cards.factId = fields.factId AND cards.reps > 0", hid=hanzi_id)
         else:
             hanzis = session.column0("select value from fields where fieldModelID = :hid", hid=hanzi_id)
     
