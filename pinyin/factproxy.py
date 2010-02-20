@@ -45,23 +45,26 @@ def chooseField(candidateFieldNames, targetkeys):
 
 # Marker carefully chosen to be stable under munging by the Anki and QT HTML framework,
 # as well as invisible to the user under ordinary conditions. Change this at your PERIL:
-generatedmarker = '<a name="pinyin-toolkit"></a>'
+prefixgeneratedmarker = '<a name="pinyin-toolkit"></a>' # Deprecated. Causes problems if the field is wrapped within a <a> by the template because nested <a> is illegal and causes the enclosing one to end early.
+postfixgeneratedmarker = u'<a name="pinyin-toolkit"></a>\u200d' # Need some trailing character to prevent QWebKit normalising the empty <a> away. See http://en.wikipedia.org/wiki/Space_(punctuation)
 
 def isblankfield(value):
     return len(value.strip()) == 0
 
 def isgeneratedfield(key, value):
-    return key == "weblinks" or value.startswith(generatedmarker)
+    return key == "weblinks" or value.startswith(prefixgeneratedmarker) or value.endswith(postfixgeneratedmarker)
 
 def unmarkgeneratedfield(value):
-    if value.startswith(generatedmarker):
-        # NB: do NOT lstrip regardless of startswith, because lstrip even removes characters
-        # if we have a partial match of the string - I had a bug where I was stripping leading
-        # angle brackets out of fields containing HTML! Furthermore, lstrip attempts to strip
-        # the string it is given SEVERAL times.
-        return value[len(generatedmarker):]
+    # NB: do NOT lstrip regardless of startswith, because lstrip even removes characters
+    # if we have a partial match of the string - I had a bug where I was stripping leading
+    # angle brackets out of fields containing HTML! Furthermore, lstrip attempts to strip
+    # the string it is given SEVERAL times.
+    if value.startswith(prefixgeneratedmarker):
+        return value[len(prefixgeneratedmarker):]
+    elif value.endswith(postfixgeneratedmarker):
+        return value[:len(postfixgeneratedmarker)]
     else:
         return value
 
 def markgeneratedfield(value):
-    return generatedmarker + value
+    return value + postfixgeneratedmarker
