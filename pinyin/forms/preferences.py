@@ -20,6 +20,12 @@ class Preferences(QDialog):
         self.controls.setupUi(self)
         
         self.fieldsScroll = self.createFieldsScroll(self.controls.fieldsFrame)
+        
+        # Explicitly set focus on a harmless control. I do this because if I didn't do this
+        # sometimes it meant the language combobox got the focus. Then when people tried
+        # to scroll the fields list (using the mousewheel) when it was already at the top or
+        # bottom it would start changing the value in this combobox.
+        self.controls.textTab.setFocus()
     
     #
     # Setup
