@@ -321,6 +321,7 @@ def filledgraphforupdaters(all_updaters, fact, delta):
     for field in initiallyfilledfields:
         dirty[field] = field in delta
         graph[field] = (False, Thunk(lambda field=field: cond(field in delta, lambda: delta[field], lambda: fact[field])))
+        log.info("Field %s is initially filled. Dirty: %s", field, dirty[field])
     
     # Remove useless updaters, and updaters that might confound a delta by updating a field from an
     # old field. For example, if we change the reading we want to regenerate the color field -- but this is no
@@ -384,11 +385,13 @@ def filledgraphforupdaters(all_updaters, fact, delta):
                     else:
                         # Last value must not have changed: retain it
                         assert (field in fact and not anyinputsdirty)
+                        log.info("Retaining old field value for %s (blank: %s)", field, isblankfield(fact[field]))
                         dirty[field] = False
                         return unmarkgeneratedfield(fact[field])
                 
                 # What if all of the possible updaters failed? Ideally we would not be in the graph at all, but it's too late for that.
                 # All we can do is return None, and deal with this possibility later on.
+                log.info("All possible updaters failed for the field %s", field)
                 dirty[field] = False
                 return None
             
