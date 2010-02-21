@@ -85,7 +85,7 @@ def get_genericstats(title, groups, unclassified_name, hanzi, backaction):
     groupcounts, unclassifiedcount = classify(hanzi, groups)
 
     # Create the HTML formatted output
-    html = "<h4>%s</h4><table cellpadding=3><tr><td><b>Freq chars</b></td><td><b>Seen</b></td><td><b>Seen %%</b></td></tr>" % (title)
+    html = "<h4>%s</h4><table cellpadding=3><tr><td><b>Category</b></td><td><b>Seen</b></td><td><b>Seen %%</b></td></tr>" % (title)
     python_actions = []
 
     makelinkhint = lambda base: filter(lambda x: x.isalnum(), "".join(list(set(base))))
@@ -134,15 +134,14 @@ def get_freqstats(SimpTrad, hanzi, backaction):
     return get_genericstats("Character frequency data", [hanzi500sSimp, hanzi500sTrad][SimpTrad], "3500++", hanzi, backaction)
 
 def get_hskstats(hanzi, backaction):
-    html, python_actions = get_genericstats("HSK character statistics", hanzihsk[:-1], None, hanzi, backaction)
-    return (html + "<p><i>Note: This is not the same as HSK vocabulary.</i></p>", python_actions)
+    html, python_actions = get_genericstats("HSK Hanzi", hanzihsk[:-1], None, hanzi, backaction)
+    return (html + "<p><i>Note: This is not the same as HSK <b>vocabulary</b>.</i></p>", python_actions)
 
 def get_twstats(hanzi, backaction):
-    return get_genericstats("TW Ministry of Education List Statistics", hanzitaiwanstandard, None, hanzi, backaction)
+    return get_genericstats("Taiwan Education Ministry Hanzi", hanzitaiwanstandard, None, hanzi, backaction)
 
-# TODO: use this function
 def get_topstats(hanzi, backaction):
-    return get_genericstats("TOP Statistics (Characters)", hanzitop, None, hanzi, backaction)
+    return get_genericstats("Test Of Proficiency (TOP) Hanzi", hanzitop, None, hanzi, backaction)
 
 
 ####################################################################
@@ -151,30 +150,30 @@ def get_topstats(hanzi, backaction):
 ####################################################################
 def hanziStats(config, session):
     def go(SimpTrad, DeckSeen):
-        # Set the prompt for seen cards vs whole deck toggle
-        if DeckSeen == 0:
-            seentype = "Data Set: <a href=py:toggleDeckSeen>seen cards only</a></small>"
-        else:
-            seentype = "Data Set: <a href=py:toggleDeckSeen>whole deck</a>"
-
-        # Set the description for the traditional vs simplified toggle
-        if SimpTrad == 0:
-            ctype = "Character Set: <a href=py:toggleSimpTrad>Simplified</a>"
-        else:
-            ctype = "Character Set: <a href=py:toggleSimpTrad>Traditional</a>"
+        # Setup toggles for view options
+        deckseen_html = "Data Set: <a href=py:toggleDeckSeen>%s</a>" % (DeckSeen == 0 and "seen cards only" or "whole deck")
+        simptrad_html = "Character Set: <a href=py:toggleSimpTrad>%s</a>" % (SimpTrad == 0 and "Simplified" or "Traditional")
+        toggle_html = deckseen_html + "<br>" + simptrad_html
+        toggle_python_actions = [("toggleDeckSeen", lambda: go(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: go(not SimpTrad and 1 or 0, DeckSeen))]
 
         hanzi = get_allHanzi(config, session, DeckSeen)
 
         backaction = lambda: go(SimpTrad, DeckSeen)
         freq_html, freq_python_actions = get_freqstats(SimpTrad, hanzi, backaction)
-        specific_html, specific_python_actions = SimpTrad == 0 and get_hskstats(hanzi, backaction) or get_twstats(hanzi, backaction)
+        
+        if SimpTrad == 0:
+            specific_html, specific_python_actions = get_hskstats(hanzi, backaction)
+        else:
+            tw_html, tw_python_actions = get_twstats(hanzi, backaction)
+            top_html, top_python_actions = get_topstats(hanzi, backaction)
+            specific_html, specific_python_actions = tw_html + "<br>" + top_html, tw_python_actions + top_python_actions
 
-        html = "<h1>Hanzi Statistics</h1><h4>General</h4><br>" + ctype + "<br>" + seentype + \
+        html = "<h1>Hanzi Statistics</h1>" + toggle_html + \
+               "<h4>General</h4>" + \
                "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</u></b></p>" + \
-               freq_html + "<br><br>" + \
-               specific_html
-        python_actions = [("toggleDeckSeen", lambda: go(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: go(not SimpTrad and 1 or 0, DeckSeen))]
-
-        return html, (python_actions + freq_python_actions + specific_python_actions)
+               "<p>" + freq_html + "</p><br>" + \
+               "<p>" + specific_html + "</p>"
+        
+        return html, (toggle_python_actions + freq_python_actions + specific_python_actions)
   
     return go(config.prefersimptrad == "trad" and 1 or 0, 0)
