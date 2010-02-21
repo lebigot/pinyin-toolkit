@@ -98,6 +98,7 @@ class FocusHook(Hook):
             return te.toHtml()
         
         log.info("User moved focus from the field %s", field.name)
+        #log.info("Fact upon focus lost: %r", dict([(k, fact[k]) for k in fact.keys()]))
         #log.info("Changed: %s. Normalised old: %r, Normalised new: %r", normaliseHtml(self.knownfieldcontents[field.name]) != normaliseHtml(field.value), normaliseHtml(self.knownfieldcontents[field.name]), normaliseHtml(field.value))
         
         # Check old field contents against remembered value to determine changed status..
@@ -166,9 +167,18 @@ class FieldShrinkingHook(Hook):
         log.info("Installing field height adjustment hook")
         addHook("makeField", self.adjustFieldHeight)
 
+class FactEditorShortcutKeysHook(Hook):
+    def install(self):
+        from anki.hooks import wrap
+        import ankiqt.ui.facteditor
+
+        log.info("Installing a fact editor shortcut key hook")
+        ankiqt.ui.facteditor.FactEditor.setupFields = wrap(ankiqt.ui.facteditor.FactEditor.setupFields, self.setupShortcuts, "after")
+        self.setupShortcuts(self.mw.editor)
+
 # Shrunk version of color shortcut plugin merged with Pinyin Toolkit to give that functionality without the seperate download.
 # Original version by Damien Elmes <anki@ichi2.net>
-class ColorShortcutKeysHook(Hook):
+class ColorShortcutKeysHook(FactEditorShortcutKeysHook):
     def setColor(self, editor, i, sandhify):
         log.info("Got color change event for color %d, sandhify %s", i, sandhify)
         
@@ -186,20 +196,36 @@ class ColorShortcutKeysHook(Hook):
     def setupShortcuts(self, editor):
         # Loop through the 8 F[x] keys, setting each one up
         # Note: Ctrl-F9 is the HTML editor. Don't do this as it causes a conflict
-        log.info("Setting up shortcut keys on fact editor")
+        log.info("Setting up color shortcut keys on fact editor")
         for i in range(1, 9):
             for sandhify in [True, False]:
                 keysequence = (sandhify and pinyin.anki.keys.sandhiModifier + "+" or "") + pinyin.anki.keys.shortcutKeyFor(i)
                 QtGui.QShortcut(QtGui.QKeySequence(keysequence), editor.widget,
                                 lambda i=i, sandhify=sandhify: self.setColor(editor, i, sandhify))
-    
-    def install(self):
-        from anki.hooks import wrap
-        import ankiqt.ui.facteditor
+
+class BlankFactShortcutKeyHook(FactEditorShortcutKeysHook):
+    def blankFields(self, editor):
+        # Bit of an abuse of the FactProxy - but it works, since the fields are keyed off the field name,
+        # and the fact proxy doesn't actually care about the domain type at all
+        factproxy = pinyin.factproxy.FactProxy(self.config.candidateFieldNamesByKey, editor.fields)
+        for k in factproxy:
+            _field, widget = factproxy[k]
+            widget.setText(u"")
         
-        log.info("Installing color shortcut keys hook")
-        ankiqt.ui.facteditor.FactEditor.setupFields = wrap(ankiqt.ui.facteditor.FactEditor.setupFields, self.setupShortcuts, "after")
-        self.setupShortcuts(self.mw.editor)
+        # FIXME: there is actually a bug here. If the user:
+        #  1) Has the Expression field selected
+        #  2) Blanks the fact
+        #  3) Reenters the same expression
+        #
+        # Then some of the fields may not be refreshed. The reason is that the knownfieldcontents in the
+        # FocusHook will be out of date and still contain the value from before the refresh. When we compare
+        # it with the new value, they will look the same.
+        #
+        # It's not that easy to fix this, and it's not likely to be a common use case anyway, so I'm ignoring it.
+    
+    def setupShortcuts(self, editor):
+        log.info("Setting up fact blanking shortcut key on fact editor")
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Alt+b"), editor.widget, lambda editor=editor: self.blankFields(editor))
 
 class HelpHook(Hook):
     def install(self):
@@ -321,6 +347,7 @@ hookbuilders = [
     FieldShrinkingHook,
     # Keybord hooks
     ColorShortcutKeysHook,
+    BlankFactShortcutKeyHook,
     # Menu hooks
     HelpHook,
     PreferencesHook,
