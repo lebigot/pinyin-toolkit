@@ -592,3 +592,18 @@ def toSqlLiteral(thing):
         return unicode(thing)
     else:
         raise ValueError("Unsupported thing %s in SQL call", thing)
+
+
+def parseFormatString(str):
+    # Implement a Python format string parser, as specified by http://docs.python.org/library/stdtypes.html#string-formatting
+    mappingkey = r'(?:\((?P<mappingkey>[^\)]*)\))?'
+    conversionflags = r'(?P<conversionflags>[#0\- \+])?'
+    minimumfieldwidth = r'(?P<minimumfieldwidth>\*|(?:\d+))?'
+    precision = r'(?:\.(?P<precision>\*|(?:\d+)))?'
+    lengthmodifier = r'(?P<lengthmodifier>[hlL])?'
+    conversiontype = r'(?P<conversiontype>[diouxXeEfFgGcrs%])'
+    for ismatch, thing in regexparse(re.compile(r'%' + mappingkey + conversionflags + minimumfieldwidth + precision + lengthmodifier + conversiontype), str):
+        if ismatch:
+            yield (thing.group(6) == '%') and '%' or thing.groupdict()
+        else:
+            yield thing

@@ -177,3 +177,26 @@ class FactoryDictTest(unittest.TestCase):
         dict[3] = "Bye"
         self.assertEquals(dict[2], "Hello")
         self.assertEquals(dict[3], "Bye")
+
+class PythonFormatStringTest(unittest.TestCase):
+    def testUnformatted(self):
+        self.assertParses("Hello world", ["Hello world"])
+    
+    def testEscape(self):
+        self.assertParses("Hello %% world", ["Hello ", "%", " world"])
+
+    def testNormal(self):
+        s = {'precision': None, 'lengthmodifier': None, 'minimumfieldwidth': None, 'conversionflags': None, 'mappingkey': None, 'conversiontype': 's'}
+        r = {'precision': None, 'lengthmodifier': None, 'minimumfieldwidth': None, 'conversionflags': None, 'mappingkey': None, 'conversiontype': 'r'}
+        self.assertParses("Hello %s world! I %r love you..", ["Hello ", s, " world! I ", r, " love you.."])
+
+    def testDictionaryFlavoured(self):
+        mehh = {'precision': None, 'lengthmodifier': None, 'minimumfieldwidth': None, 'conversionflags': None, 'mappingkey': 'Mehh', 'conversiontype': 's'}
+        moh = {'precision': None, 'lengthmodifier': None, 'minimumfieldwidth': None, 'conversionflags': None, 'mappingkey': 'text:Moh', 'conversiontype': 'r'}
+        self.assertParses("Hello %(Mehh)s world! I %(text:Moh)r love you..", ["Hello ", mehh, " world! I ", moh, " love you.."])
+
+    def testKitchenSink(self):
+        self.assertParses("%(eVeRyTH1nG90)#12.10Lg", [{'precision': '10', 'lengthmodifier': 'L', 'minimumfieldwidth': '12', 'conversionflags': '#', 'mappingkey': 'eVeRyTH1nG90', 'conversiontype': 'g'}])
+
+    def assertParses(self, str, to):
+        self.assertEquals(list(parseFormatString(str)), to)
