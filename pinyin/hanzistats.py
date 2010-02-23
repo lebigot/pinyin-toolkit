@@ -31,19 +31,33 @@ FILE = ""
 #  Return all unique Hanzi in the current deck.                    #
 ####################################################################
 def get_deckHanzi(config, session, DeckSeen):
-    hanzi = set()
+    # Get Hanzi from the database. This function has been carefully tuned to try and get good
+    # performance, so be careful before you modify it! In particular:
+    #  1) Doing *everything* in one huge query didn't work so well - perhaps sqlite's execution
+    #     is not so good?
+    #  2) It's essential to trim the amount of text you look at by only looking at fields with names
+    #     like the ones we know about and suspect will contain Hanzi
     
-    # Get Hanzi from the database
-    hanzi_ids = session.column0("select id from fieldModels where name IN %s" % utils.toSqlLiteral(config.candidateFieldNamesByKey['expression']))
-    for hanzi_id in hanzi_ids:
-        if DeckSeen == 0:
-            hanzis = session.column0("select value from cards, fields where fieldModelID = :hid AND cards.factId = fields.factId AND cards.reps > 0", hid=hanzi_id)
-        else:
-            hanzis = session.column0("select value from fields where fieldModelID = :hid", hid=hanzi_id)
+    # Find all card models which come from Mandarin models
+    cardmodels = session.all("select cardModels.id, cardModels.modelId, cardModels.qformat from cardModels, models where cardModels.modelId = models.id AND models.tags LIKE %s" % utils.toSqlLiteral("%" + config.modelTag + "%"))
+    # Find the field names that are included in the *question field* of such cards
+    cardmodelsfieldsnames = [(cmid, modelid, set([res["mappingkey"] for res in utils.parseFormatString(qformat) if isinstance(res, dict)])) for cmid, modelid, qformat in cardmodels]
+    # Filter out unpromising names, and turn the remainder into the IDs of field models
+    eligiblefields = set(utils.concat([config.candidateFieldNamesByKey[key] for key in ['expression', 'mw', 'trad', 'simp']]))
+    cardmodelsfields = [(cmid, [session.scalar("select fieldModels.id from fieldModels where fieldModels.name = :name and fieldModels.modelId = :mid", name=fmname, mid=modelid) for fmname in fmnames if fmname in eligiblefields]) for cmid, modelid, fmnames in cardmodelsfieldsnames]
     
-        hanzi.update(utils.concat([[c for c in u if utils.isHanzi(c)] for u in hanzis]))
+    # Look up the contents of fields whose Ids we found in the previous step, optionally only including
+    # those whose corresponding card has been seen at least once
+    hanziss = session.column0("SELECT fields.value FROM cards, fields WHERE cards.factId = fields.factId %s AND (%s)" % \
+                              ((DeckSeen == 0) and "AND cards.reps > 0" or "", # Only look for seen cards if we are in that mode
+                               " OR ".join(["(cards.cardModelId = %s AND fields.fieldModelID IN %s)" % (utils.toSqlLiteral(cmid), utils.toSqlLiteral(fmids)) for cmid, fmids in cardmodelsfields])))
     
-    return hanzi
+    # Flatten everything into a set with *no intermediate structures*
+    allhanzis = set()
+    for hanzis in hanziss:
+        allhanzis.update([c for c in hanzis if utils.isHanzi(c)])
+    
+    return allhanzis
 
 ####################################################################
 #  Return all unique Hanzi from file.                              #
@@ -151,7 +165,7 @@ def get_topstats(hanzi, backaction):
 def hanziStats(config, session):
     def go(SimpTrad, DeckSeen):
         # Setup toggles for view options
-        deckseen_html = "Data Set: <a href=py:toggleDeckSeen>%s</a>" % (DeckSeen == 0 and "seen cards only" or "whole deck")
+        deckseen_html = "Data Set: <a href=py:toggleDeckSeen>%s</a>" % (DeckSeen == 0 and "seen cards only" or "all cards")
         simptrad_html = "Character Set: <a href=py:toggleSimpTrad>%s</a>" % (SimpTrad == 0 and "Simplified" or "Traditional")
         toggle_html = deckseen_html + "<br>" + simptrad_html
         toggle_python_actions = [("toggleDeckSeen", lambda: go(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: go(not SimpTrad and 1 or 0, DeckSeen))]

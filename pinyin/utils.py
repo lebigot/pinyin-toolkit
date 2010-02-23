@@ -583,7 +583,7 @@ def let(*stuff):
 
 
 def toSqlLiteral(thing):
-    if isinstance(thing, list):
+    if isinstance(thing, list) or isinstance(thing, set):
         return "(" + ",".join([toSqlLiteral(item) for item in thing]) + ")"
     elif isinstance(thing, basestring):
         # TODO: SQL escape??
