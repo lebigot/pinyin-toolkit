@@ -14,7 +14,7 @@ http://github.com/batterseapower/pinyin-toolkit/issues
 
 h1. Changelog
 
-h2. Version 0.7.0 (24/02/2010)
+h2. Version 0.7.0 (24/02/2010) [NOT YET RELEASED]
 
 | Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
 | Nick Cook       | "Email":mailto:nick@n-line.co.uk          | "Website":http://www.n-line.co.uk       |
