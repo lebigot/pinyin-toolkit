@@ -339,6 +339,17 @@ class ReformatReadingsHook(MassFillHook):
     
     notification = "All readings have been successfully reformatted."
 
+class TagRemovingHook(Hook):
+    def filterHtml(self, html, _card):
+        return pinyin.factproxy.unmarkhtmlgeneratedfields(html)
+    
+    def install(self):
+        from anki.hooks import addHook
+        
+        log.info("Installing tag removing hook")
+        addHook("drawAnswer", self.filterHtml)
+        addHook("drawQuestion", self.filterHtml)
+
 # NB: this must go at the end of the file, after all the definitions are in scope
 hookbuilders = [
     # Focus hook
@@ -352,5 +363,7 @@ hookbuilders = [
     HelpHook,
     PreferencesHook,
     MissingInformationHook,
-    ReformatReadingsHook
+    ReformatReadingsHook,
+    # Card display hooks
+    TagRemovingHook
   ]

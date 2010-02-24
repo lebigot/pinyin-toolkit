@@ -44,8 +44,21 @@ def chooseField(candidateFieldNames, targetkeys):
 
 
 # Marker carefully chosen to be stable under munging by the Anki and QT HTML framework,
-# as well as invisible to the user under ordinary conditions. Change this at your PERIL:
-prefixgeneratedmarker = '<a name="pinyin-toolkit"></a>' # Deprecated. Causes problems if the field is wrapped within a <a> by the template because nested <a> is illegal and causes the enclosing one to end early.
+# as well as invisible to the user under ordinary conditions. Change this at your PERIL!
+#
+# I have gone through three iterations here:
+#  1) I had a *prefix* generated marker. This failed when a field containing the marker was wrapped within a
+#     <a> by a template using it, because nested <a> is illegal and causes the enclosing one to end early.
+#  2) I went to a *postfix* generated marker. To make this work you need some Unicode wizardry (see below). This:
+#    * Unicode caused a small problem because you could see the notionally inivisble character in the Fact Editor.
+#    * Putting the <a> on the suffix is basically a hack to prevent enclosing <a> closing too early
+#    * I also eventually noticed that both 1) and 2) were broken because using text:FieldName in e.g. a template's
+#      href was going to introduce some crap into the URL. Even if Anki were to strip HTML, that would only fix 1) and not 2).
+#    * Seemed to be less robust to spurious changes being introduced when the user put their cursor into the field
+#      briefly than approach (1), but I never tracked down why
+#  3) I went back to option 1), but with some hooks into Anki to strip the marker out of HTML before it is shown to
+#     the user. Bliss!
+prefixgeneratedmarker = '<a name="pinyin-toolkit"></a>'
 postfixgeneratedmarker = u'<a name="pinyin-toolkit"></a>\u200d' # Need some trailing character to prevent QWebKit normalising the empty <a> away. See http://en.wikipedia.org/wiki/Space_(punctuation)
 
 def isblankfield(value):
@@ -67,4 +80,7 @@ def unmarkgeneratedfield(value):
         return value
 
 def markgeneratedfield(value):
-    return value + postfixgeneratedmarker
+    return prefixgeneratedmarker + value
+
+def unmarkhtmlgeneratedfields(html):
+    return html.replace(prefixgeneratedmarker, "")
