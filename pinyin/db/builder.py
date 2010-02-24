@@ -19,10 +19,11 @@ class DBBuilder(object):
         'CEDICT', 'CFDICT', 'HanDeDict',
         # Some basic Mandarin data:
         'CharacterPinyin', 'PinyinSyllables', 'PinyinInitialFinal',
+        # Variant-related information, since I want to do Traditional/Simplified translation:
+        'CharacterVariant'
         # All ShapeLookupData:
         #'Strokes', 'StrokeOrder', 'CharacterDecomposition',
-        #'LocaleCharacterVariant', 'StrokeCount', 'ComponentLookup',
-        #'CharacterVariant', 'ZVariants'
+        #'StrokeCount', 'ComponentLookup',
       ]
 
     cjkdatapath = pinyin.utils.toolkitdir("pinyin", "vendor", "cjklib", "cjklib", "data")
