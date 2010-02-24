@@ -14,6 +14,24 @@ http://github.com/batterseapower/pinyin-toolkit/issues
 
 h1. Changelog
 
+h2. Version 0.7.0 (24/02/2010)
+
+| Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
+| Nick Cook       | "Email":mailto:nick@n-line.co.uk          | "Website":http://www.n-line.co.uk       |
+
+* The field filling logic has been completely revamped. What this means for you is that:
+** The Toolkit will now *never* overwrite your changes to a field it generated
+** Generated fields will be automatically updated to be consistent. For example, if you correct the reading
+   field of a fact by typing in the correct one, the audio field will be updated to match
+* New feature: integrated and improved the Hanzi Statistics plugin
+* New feature: the Toolkit comes with a set of GPL licensed sounds included. We are using
+  the "GradInt":http://people.pwf.cam.ac.uk/ssb22/gradint/ Yali Cheng sound set.
+* The Toolkit is more eager to reuse audio that is already in your media folder, so your deck file size
+  should grow more slowly
+* You can now entirely blank out a fact from within the fact editor using Ctrl+Alt+b
+* Many minor bug fixes and improvements!
+
+
 h2. Version 0.6.3 (22/11/2009)
 
 | Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
