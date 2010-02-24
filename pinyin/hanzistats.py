@@ -157,7 +157,6 @@ def get_twstats(hanzi, backaction):
 def get_topstats(hanzi, backaction):
     return get_genericstats("Test Of Proficiency (TOP) Hanzi", hanzitop, None, hanzi, backaction)
 
-
 ####################################################################
 #  "Main" function, run when Hanzi statistics is clicked in the    #
 #  Tool menu.                                                      #
@@ -170,7 +169,7 @@ def hanziStats(config, session):
         toggle_html = deckseen_html + "<br>" + simptrad_html
         toggle_python_actions = [("toggleDeckSeen", lambda: go(SimpTrad, not DeckSeen and 1 or 0)), ("toggleSimpTrad", lambda: go(not SimpTrad and 1 or 0, DeckSeen))]
 
-        hanzi = get_allHanzi(config, session, DeckSeen)
+        hanzi = filter(lambda c: characterIsSimpTrad(c, SimpTrad), get_allHanzi(config, session, DeckSeen))
 
         backaction = lambda: go(SimpTrad, DeckSeen)
         freq_html, freq_python_actions = get_freqstats(SimpTrad, hanzi, backaction)
@@ -191,3 +190,20 @@ def hanziStats(config, session):
         return html, (toggle_python_actions + freq_python_actions + specific_python_actions)
   
     return go(config.prefersimptrad == "trad" and 1 or 0, 0)
+
+
+def characterIsSimpTrad(c, simpTrad):
+    from db import database
+    from cjklib import characterlookup
+    
+    thislocale, otherlocale = simpTrad == 0 and ("C", "T") or ("T", "C")
+    clookup = characterlookup.CharacterLookup(thislocale, dbConnectInst=database()) # NB: not sure that thisLocale actualy makes any difference..
+
+    # Find all the variants of this character for the relevant locales
+    othervariants = clookup.getCharacterVariants(c, otherlocale)
+    thisvariants = clookup.getCharacterVariants(c, thislocale)
+    
+    # If there are any variants at all, guess that we must have a character in the original locale.
+    # To deal nicely with situations where we lack data, guess that things are in the requested locale
+    # if we *also* don't have any versions of them in the original locale.
+    return len(othervariants) != 0 or len(thisvariants) == 0
