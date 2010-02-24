@@ -64,17 +64,26 @@ def ispunctuation(text):
     
     return True
 
+def isopenbracket(text):
+    return len(text) == 1 and unicodedata.category(unicode(text)) == 'Ps'
+
+def isclosebracket(text):
+    return len(text) == 1 and unicodedata.category(unicode(text)) == 'Pe'
+
+def isambiguousquotechar(char):
+    return char in u"'\""
+
 """
 Reports whether a string consists of only punctuation characters that should have a space added after them.
 """
 def ispostspacedpunctuation(text):
-    return text in [u"·", u"。", u".", u"，", u","]
+    return text in [u"·", u"。", u".", u"，", u",", u"’", u"”"]
 
 """
 Reports whether a string consists of only punctuation characters that should have a space added before them.
 """
 def isprespacedpunctuation(text):
-    return text == u"·"
+    return text in [u"·", u"‘", u"“"]
 
 """
 Turns the empty string into None and leaves everything else alone.

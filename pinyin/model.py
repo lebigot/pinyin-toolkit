@@ -537,16 +537,30 @@ class FormatReadingForDisplayVisitor(TokenVisitor):
     def __init__(self):
         self.haveprecedingspace = True
         self.haveprecedingpinyin = False
+        self.insidequotes = False
     
     def visitText(self, text):
+        # Functions for computing intermediate results to do with quoting
+        isambiguousopenquote, isambiguousclosequote = (lambda insidequotes, c: not insidequotes and utils.isambiguousquotechar(c), lambda insidequotes, c: insidequotes and utils.isambiguousquotechar(c))
+        togglequotes = lambda extratext: self.insidequotes ^ (len(filter(utils.isambiguousquotechar, extratext)) % 2 == 1)
+        
+        # Decide whether we need an additional space before the first character
         firstchar = text[0]
-        firstcharactsasspace = firstchar.isspace() or (utils.ispunctuation(firstchar) and not(utils.isprespacedpunctuation(unicode(text))))
+        firstcharactsasspace = firstchar.isspace() or (utils.ispunctuation(firstchar) and not(utils.isprespacedpunctuation(unicode(firstchar)) or isambiguousopenquote(self.insidequotes, firstchar)))
         needleadingspace = not self.haveprecedingspace and not firstcharactsasspace
         
+        # Decide whether or not we look like we are in quotes by the time we come to just before the last character -
+        # this is used as part of working out if we should add another space after before any subsequent tokens
+        insidequotesintermediate = togglequotes(text[:-1])
+        
+        # Decide whether we can treat the last character as a space when deciding if to add a leading space for the next token
         lastchar = text[-1]
-        lastcharactsasspace = lastchar.isspace() or (utils.ispunctuation(lastchar) and not(utils.ispostspacedpunctuation(unicode(text))))
+        lastcharactsasspace = lastchar.isspace() or (utils.ispunctuation(lastchar) and not(utils.ispostspacedpunctuation(unicode(firstchar)) or isambiguousclosequote(insidequotesintermediate, lastchar)))
+        
+        # Record stuff computed this round so the next token can decide whether to add spaces based on it
         self.haveprecedingspace = lastcharactsasspace
         self.haveprecedingpinyin = False
+        self.insidequotes = togglequotes(text)
         
         return maybeSpace(needleadingspace) + [text]
     

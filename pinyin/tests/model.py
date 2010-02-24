@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+from testutils import *
 
 import pinyin.dictionary
 from pinyin.model import *
@@ -314,7 +315,7 @@ class TokenizeTest(unittest.TestCase):
     def testTokenizeWeirdyRomanCharacters(self):
         self.assertEquals([Text(u'Ｕ')], tokenize(u'Ｕ'))
 
-class FormatReadingForDisplayTest(unittest.TestCase):
+class TestFormatReadingForDisplay(object):
     # Test data:
     nihao_simp = u'你好，我喜欢学习汉语。我的汉语水平很低。'
     nihao_trad = u'你好，我喜歡學習漢語。我的漢語水平很低。'
@@ -322,46 +323,50 @@ class FormatReadingForDisplayTest(unittest.TestCase):
     nihao_reading = u"ni3 hao3, wo3 xi3 huan xue2 xi2 Han4 yu3. wo3 de Han4 yu3 shui3 ping2 hen3 di1."
 
     def testSimplifiedPinyin(self):
-        self.assertEqual(self.reading(self.nihao_simp), self.nihao_reading)
+        assert_equal(self.reading(self.nihao_simp), self.nihao_reading)
 
     def testTraditionalPinyin(self):
-        self.assertEqual(self.reading(self.nihao_trad), self.nihao_reading)
+        assert_equal(self.reading(self.nihao_trad), self.nihao_reading)
 
     def testWesternPunctuation(self):
-        self.assertEqual(self.reading(self.nihao_simp_western_punc), self.nihao_reading)
+        assert_equal(self.reading(self.nihao_simp_western_punc), self.nihao_reading)
 
     def testNoSpacesAfterBraces(self):
-        self.assertEquals(self.reading(u"(你)好!"), u"(ni3)hao3!")
+        assert_equal(self.reading(u"(你)好!"), u"(ni3)hao3!")
 
     def testEmptyString(self):
-        self.assertEqual(self.reading(u""), u"")
+        assert_equal(self.reading(u""), u"")
 
     def testMixedEnglishChinese(self):
-        self.assertEqual(self.reading(u"你 (pr.)"), u"ni3 (pr.)")
+        assert_equal(self.reading(u"你 (pr.)"), u"ni3 (pr.)")
 
     def testNeutralRSuffix(self):
-        self.assertEqual(self.reading(u"一塊兒"), "yi1 kuai4r")
+        assert_equal(self.reading(u"一塊兒"), "yi1 kuai4r")
 
     def testSimpleSingleton(self):
-        self.assertEquals(self.format([Word(Pinyin.parse(u"hen3"))]), u"hen3")
+        assert_equal(self.format([Word(Pinyin.parse(u"hen3"))]), u"hen3")
 
     def testSimpleSpacing(self):
-        self.assertEquals(self.format([Word(Pinyin.parse(u"hen3"), Pinyin.parse(u"ma5"))]), u"hen3 ma")
+        assert_equal(self.format([Word(Pinyin.parse(u"hen3"), Pinyin.parse(u"ma5"))]), u"hen3 ma")
 
     def testSimpleErhuaSingleton(self):
-        self.assertEquals(self.format([Word(Pinyin.parse(u"r5"))]), u"r")
+        assert_equal(self.format([Word(Pinyin.parse(u"r5"))]), u"r")
 
     def testSimpleErhua(self):
-        self.assertEquals(self.format([Word(Pinyin.parse(u"hen3"), Pinyin.parse(u"ma5"), Pinyin.parse("r5"))]), u"hen3 mar")
+        assert_equal(self.format([Word(Pinyin.parse(u"hen3"), Pinyin.parse(u"ma5"), Pinyin.parse("r5"))]), u"hen3 mar")
 
     def testSimpleTonedCharacter(self):
-        self.assertEquals(self.format([Word(TonedCharacter(u"塊", 1))]), u"塊")
+        assert_equal(self.format([Word(TonedCharacter(u"塊", 1))]), u"塊")
 
     def testErhuaNextToText(self):
-        self.assertEquals(self.format([Word(Text("not pinyin"), Pinyin.parse(u"r5"))]), u"not pinyin r")
+        assert_equal(self.format([Word(Text("not pinyin"), Pinyin.parse(u"r5"))]), u"not pinyin r")
 
     def testErhuaNextToPinyinInOtherWord(self):
-        self.assertEquals(self.format([Word(Pinyin.parse(u"hen3")), Word(Pinyin.parse(u"r5"))]), u"hen3r")
+        assert_equal(self.format([Word(Pinyin.parse(u"hen3")), Word(Pinyin.parse(u"r5"))]), u"hen3r")
+
+    def testQuotes(self):
+        for quotein, quoteout in zip(u"\"'“”", u"\"'\"\""):
+            yield assert_equal, self.reading(u'温家宝回应马英九%s十六字%s理念' % (quotein, quotein)), u'Wen1 Jia1 Bao3 hui2 ying4 Ma3 Ying1 jiu3 %sshi2 liu4 zi4%s li3 nian4' % (quoteout, quoteout)
 
     # Test helpers
     def format(self, what):
