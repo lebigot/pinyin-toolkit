@@ -102,7 +102,7 @@ def get_genericstats(title, groups, unclassified_name, hanzi, backaction):
     html = "<h4>%s</h4><table cellpadding=3><tr><td><b>Category</b></td><td><b>Seen</b></td><td><b>Seen %%</b></td></tr>" % (title)
     python_actions = []
 
-    makelinkhint = lambda base: filter(lambda x: x.isalnum(), "".join(list(set(base))))
+    makelinkhint = lambda base: "a" + filter(lambda x: x.isalnum(), base)
 
     for (group, grouphanzi), groupcount in zip(groups, groupcounts):
         linkhint = makelinkhint(title + group)
