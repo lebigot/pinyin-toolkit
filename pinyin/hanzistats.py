@@ -171,23 +171,25 @@ def hanziStats(config, session):
 
         hanzi = filter(lambda c: characterIsSimpTrad(c, SimpTrad), get_allHanzi(config, session, DeckSeen))
 
-        backaction = lambda: go(SimpTrad, DeckSeen)
-        freq_html, freq_python_actions = get_freqstats(SimpTrad, hanzi, backaction)
+        def backaction():
+            freq_html, freq_python_actions = get_freqstats(SimpTrad, hanzi, backaction)
         
-        if SimpTrad == 0:
-            specific_html, specific_python_actions = get_hskstats(hanzi, backaction)
-        else:
-            tw_html, tw_python_actions = get_twstats(hanzi, backaction)
-            top_html, top_python_actions = get_topstats(hanzi, backaction)
-            specific_html, specific_python_actions = tw_html + "<br>" + top_html, tw_python_actions + top_python_actions
+            if SimpTrad == 0:
+                specific_html, specific_python_actions = get_hskstats(hanzi, backaction)
+            else:
+                tw_html, tw_python_actions = get_twstats(hanzi, backaction)
+                top_html, top_python_actions = get_topstats(hanzi, backaction)
+                specific_html, specific_python_actions = tw_html + "<br>" + top_html, tw_python_actions + top_python_actions
 
-        html = "<h1>Hanzi Statistics</h1>" + toggle_html + \
-               "<h4>General</h4>" + \
-               "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</u></b></p>" + \
-               "<p>" + freq_html + "</p><br>" + \
-               "<p>" + specific_html + "</p>"
+            html = "<h1>Hanzi Statistics</h1>" + toggle_html + \
+                   "<h4>General</h4>" + \
+                   "<p>Unique Hanzi: <b><u>" + str(len(hanzi)) + "</u></b></p>" + \
+                   "<p>" + freq_html + "</p><br>" + \
+                   "<p>" + specific_html + "</p>"
         
-        return html, (toggle_python_actions + freq_python_actions + specific_python_actions)
+            return html, (toggle_python_actions + freq_python_actions + specific_python_actions)
+
+        return backaction()
   
     return go(config.prefersimptrad == "trad" and 1 or 0, 0)
 
