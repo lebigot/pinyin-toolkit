@@ -29,6 +29,7 @@ class FactProxy(object):
         return self.fact[self.fieldnames[key]]
     
     def __setitem__(self, key, value):
+        #log.info("Setting %s to %r", key, value)
         self.fact[self.fieldnames[key]] = value
 
 def chooseField(candidateFieldNames, targetkeys):
@@ -58,7 +59,7 @@ def chooseField(candidateFieldNames, targetkeys):
 #      briefly than approach (1), but I never tracked down why
 #  3) I went back to option 1), but with some hooks into Anki to strip the marker out of HTML before it is shown to
 #     the user. Bliss!
-prefixgeneratedmarker = '<a name="pinyin-toolkit"></a>'
+prefixgeneratedmarker = u'<a name="pinyin-toolkit"></a>'
 postfixgeneratedmarker = u'<a name="pinyin-toolkit"></a>\u200d' # Need some trailing character to prevent QWebKit normalising the empty <a> away. See http://en.wikipedia.org/wiki/Space_(punctuation)
 
 def isblankfield(value):
