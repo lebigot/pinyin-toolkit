@@ -18,6 +18,8 @@ class FactProxy(object):
             fieldname = chooseField(candidateFieldNames, fact.keys())
             if fieldname is not None:
                 self.fieldnames[key] = fieldname
+        
+        log.info("Choose field mapping %r", self.fieldnames)
 
     def __contains__(self, key):
         return key in self.fieldnames
@@ -36,7 +38,6 @@ def chooseField(candidateFieldNames, targetkeys):
     # Find the first field that is present in the fact
     for candidateField in candidateFieldNames:
         for factfieldname in [factfieldname for factfieldname in targetkeys if factfieldname.lower() == candidateField.lower()]:
-            log.info("Choose %s as a field name from the fact for %s", factfieldname, candidateField)
             return factfieldname
     
     # No suitable field found!

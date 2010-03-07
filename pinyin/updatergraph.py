@@ -321,7 +321,8 @@ def filledgraphforupdaters(all_updaters, fact, delta):
     for field in initiallyfilledfields:
         dirty[field] = field in delta
         graph[field] = (False, Thunk(lambda field=field: cond(field in delta, lambda: delta[field], lambda: fact[field])))
-        log.info("Field %s is initially filled. Dirty: %s", field, dirty[field])
+    
+    log.info("Initially filled graph fields: %r", dirty)
     
     # Remove useless updaters, and updaters that might confound a delta by updating a field from an
     # old field. For example, if we change the reading we want to regenerate the color field -- but this is no
