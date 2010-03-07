@@ -209,6 +209,12 @@ class BlankFactShortcutKeyHook(FactEditorShortcutKeysHook):
         # and the fact proxy doesn't actually care about the domain type at all
         factproxy = pinyin.factproxy.FactProxy(self.config.candidateFieldNamesByKey, editor.fields)
         for k in factproxy:
+            # Nick doesn't want expression to be blanked. We could hack it in:
+            #if k == "expression":
+            #    continue
+            # BUT if we do this then you need to explicitly change the expression to something else before
+            # the toolkit will regenerate the fields (because the remember value for the expression == the new one).
+            
             _field, widget = factproxy[k]
             widget.setText(u"")
         
