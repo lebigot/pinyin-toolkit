@@ -65,7 +65,8 @@ class FieldUpdater(object):
                 # The value can be None if we tried to update the field but just couldn't find any information.
                 # This can happen e.g. with the "meaning" field if there is no definition in the dictionary.
                 if value is not None:
-                    fact[field] = (graph[field][0] and factproxy.markgeneratedfield or (lambda x: x))(value)
+                    # Last-ditch attempt to convert to unicode to intercept any ASCII that slipped though the net
+                    fact[field] = (graph[field][0] and factproxy.markgeneratedfield or (lambda x: x))(unicode(value))
 
 class FieldUpdaterFromExpression(FieldUpdater):
     def __init__(self, *args):
