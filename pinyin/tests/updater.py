@@ -128,7 +128,7 @@ class TestFieldUpdaterFromExpression(object):
             { "expression" : u"书", "reading" : markgeneratedfield("shu1") })
     
     def testUpdatingGeneratedVerison(self):
-        self.assertUpdatesTo(None, {}, { "expression" : markgeneratedfield("书") }, { "expression" : markgeneratedfield("书") })
+        self.assertUpdatesTo(None, {}, { "expression" : markgeneratedfield(u"书") }, { "expression" : markgeneratedfield(u"书") })
 
     def testAutoBlankingGenerated(self):
         self.assertUpdatesTo(u"", {}, {
