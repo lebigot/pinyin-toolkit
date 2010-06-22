@@ -14,6 +14,16 @@ http://github.com/batterseapower/pinyin-toolkit/issues
 
 h1. Changelog
 
+h2. Version 0.6.4 (22/06/2010)
+
+| Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
+| Nick Cook       | "Email":mailto:nick@n-line.co.uk          | "Website":http://www.n-line.co.uk       |
+
+* Fixes the problem with parsing the latest Google Translate response format
+* Fixes DeprecationWarning from cjklib
+* Dictionary update
+
+
 h2. Version 0.6.3 (22/11/2009)
 
 | Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
