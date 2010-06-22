@@ -96,8 +96,55 @@ def lookup(query, destlanguage):
         #     ["interjection","OK!","okay!","okey!"]
         #   ]
         # ]
+        #
+        # Or this:
+        # [
+        #   [
+        #     ["Good","\u597d",""]
+        #   ],
+        #   [
+        #     [
+        #       "verb",
+        #       ["Love","Like"]
+        #     ],
+        #     [
+        #       "adjective",
+        #       ["Good"]
+        #     ],
+        #     [
+        #       "adverb",
+        #       ["Well","Fine","OK","Okay","Okey","Okey dokey"]
+        #     ],
+        #     [
+        #       "interjection",
+        #       ["OK","Okay","Okey"]
+        #     ]
+        #   ],
+        #   "zh-CN"
+        # ]
+        #
+        # Or this even newer format:
+        # [
+        #   [
+        #      [
+        #        "Hello, you are my friend?",
+        #        "\u4f60\u597d\uff0c\u4f60\u662f\u6211\u7684\u670b\u53cb\u5417\uff1f",
+        #        ""
+        #      ]
+        #   ],
+        #   ,
+        #   "zh-CN"
+        # ]
         try:
-            return [[Word(Text(result[0]))]] + [[Word(Text(definition[0].capitalize() + ": " + ", ".join(definition[1:])))] for definition in result[1]]
+            if isinstance(result[0], list):
+                if result[0][0][0] == result[0][0][1]:
+                    # If no translation was performed, give up
+                    return None
+                else:
+                    # Otherwise, extract response
+                    return [[Word(Text(result[0][0][0]))]] + [[Word(Text(definition[0].capitalize() + ": " + ", ".join([d.lower() for d in definition[1]])))] for definition in result[1] or []]
+            else:
+                return [[Word(Text(result[0]))]] + [[Word(Text(definition[0].capitalize() + ": " + ", ".join(definition[1:])))] for definition in result[1]]
         except IndexError:
             raise ValueError("Result %s from Google Translate looked like a definition but was not in the expected list format" % str(result))
     elif isinstance(result, dict):
@@ -233,10 +280,13 @@ def parsegoogleresponse(response):
     intaction = makeparseaction(re.compile('-?[0-9]+'), numbertoken)
     listaction = makeparseaction(re.compile('\\['), listtoken)
     dictaction = makeparseaction(re.compile('\\{'), dicttoken)
+    # Allow empty expressions to deal with response like this:
+    # u'[[["Bonjour, vous \xeates mon ami?","\u4f60\u597d\uff0c\u4f60\u662f\u6211\u7684\u670b\u53cb\u5417\uff1f",""]],,"zh-CN"]
+    noneaction = lambda what: (None, what)
     
     # Parse loop using the action table
     whitespacetoken = lambda match, what: expraction(what)
-    expraction = unfailing("an expression", makechoiceaction([stringaction, intaction, listaction, dictaction, makeparseaction(re.compile('\\s+'), whitespacetoken)]))
+    expraction = unfailing("an expression", makechoiceaction([stringaction, intaction, listaction, dictaction, makeparseaction(re.compile('\\s+'), whitespacetoken), noneaction]))
     
     # Use the constructed action table to parse the supplied string
     value, rest = expraction(response)

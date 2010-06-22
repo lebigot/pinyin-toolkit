@@ -51,13 +51,21 @@ class ParseGoogleResponseTest(unittest.TestCase):
     
     def testParseErrorIfDictMissingValueNotClosed(self):
         self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" }'))
-        self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : }'))
+        # Not valid any more since we interpret missing values as None:
+        #self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : }'))
+    
+    def testParsingDictionaryWithEmptyField(self):
+        self.assertEquals(parsegoogleresponse('{ "hello" : }'), { "hello" : None })
     
     def testParseErrorIfDictNotClosed(self):
         self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : "world"'))
     
-    def testParseErrorIfEmpty(self):
-        self.assertRaises(ValueError, lambda: parsegoogleresponse(''))
+    # Not valid any more since we interpret missing values as None:
+    #def testParseErrorIfEmpty(self):
+    #    self.assertRaises(ValueError, lambda: parsegoogleresponse(''))
+    
+    def testParsingEmpty(self):
+        self.assertEquals(parsegoogleresponse(''), None)
 
 class GoogleTranslateTest(unittest.TestCase):
     def testTranslateNothing(self):
@@ -81,12 +89,19 @@ class GoogleTranslateTest(unittest.TestCase):
     
     def testTranslateDealsWithDefinition(self):
         self.assertEquals(gTrans(u"好"), [
-            [Word(Text("Well"))],
-            [Word(Text("Verb: like, love"))],
-            [Word(Text("Adjective: good"))],
-            [Word(Text("Adverb: fine, OK, okay, okey, okey dokey, well"))],
-            [Word(Text("Interjection: OK!, okay!, okey!"))]
+            [Word(Text(u'Good'))],
+            [Word(Text(u'Verb: love, like'))],
+            [Word(Text(u'Adjective: good'))],
+            [Word(Text(u'Adverb: well, fine, ok, okay, okey, okey dokey'))],
+            [Word(Text(u'Interjection: ok, okay, okey'))]
           ])
+        # [
+        #    [Word(Text("Well"))],
+        #    [Word(Text("Verb: like, love"))],
+        #    [Word(Text("Adjective: good"))],
+        #    [Word(Text("Adverb: fine, OK, okay, okey, okey dokey, well"))],
+        #    [Word(Text("Interjection: OK!, okay!, okey!"))]
+        #  ])
     
     def testCheck(self):
         self.assertEquals(gCheck(), True)
