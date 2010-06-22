@@ -21,6 +21,14 @@ class FactProxy(object):
         
         log.info("Choose field mapping %r", self.fieldnames)
 
+    def __repr__(self):
+        # "Correct" repr:
+        #return "FactProxy(%r, %r)" % (dict([(key, [fieldname]) for key, fieldname in self.fieldnames.items()]), dict(zip(self.fact.keys(), self.fact.values())))
+        
+        # repr which is much more useful for debugging:
+        namefields = dict([(fieldname, key) for (key, fieldname) in self.fieldnames.items()])
+        return repr(dict(zip([namefields.get(fieldname, fieldname) for fieldname in self.fact.keys()], self.fact.values())))
+
     def __contains__(self, key):
         return key in self.fieldnames
 

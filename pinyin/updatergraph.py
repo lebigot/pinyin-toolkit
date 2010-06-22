@@ -307,6 +307,7 @@ class GraphBasedUpdater(object):
 
 
     def filledgraph(self, fact, delta):
+        log.info("GraphBasedUpdater.filledgraph(self, %r, %r)", fact, delta)
         return filledgraphforupdaters(self.updaters, fact, delta)
 
 def filledgraphforupdaters(all_updaters, fact, delta):
