@@ -18,7 +18,9 @@ except ImportError:
 
 # Sanity prevails from this point:
 for vendor_package in ["cjklib"]:
-    sys.path.append(utils.toolkitdir("pinyin", "vendor", vendor_package))
+    # NB: must append to the *start* of the path in case the user already has an old
+    # version of cjklib installed. See http://github.com/batterseapower/pinyin-toolkit/issues/issue/180/
+    sys.path = [utils.toolkitdir("pinyin", "vendor", vendor_package)] + sys.path
 
 import config
 import db
