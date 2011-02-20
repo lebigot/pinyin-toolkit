@@ -18,6 +18,7 @@ h2. Version 0.6.6 (20/02/2011)
 
 | Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
 
+* Dictionary update
 * Attempt to fix "Fill missing card data" for Anki 1.2 (will not work with earlier Anki versions!)
 
 h2. Version 0.6.5 (22/06/2010)
