@@ -27,7 +27,7 @@ class FocusHook(Hook):
         log.info("User moved focus from the field %s", field.name)
         
         # Are we not in a Mandarin model?
-        if not(anki.utils.findTag(self.config.modelTag, fact.model.tags)):
+        if not(self.config.modelTag in fact.model.name):
             return
         
         # Need a fact proxy because the updater works on dictionary-like objects

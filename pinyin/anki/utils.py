@@ -14,6 +14,6 @@ def persistconfig(mw, config):
 
 def suitableFacts(modelTag, deck):
     for model in deck.models:
-        if anki.utils.findTag(modelTag, model.tags):
+        if modelTag in model.name:
             for fact in deck.s.query(anki.facts.Fact).filter('modelId = %s' % model.id):
                 yield fact

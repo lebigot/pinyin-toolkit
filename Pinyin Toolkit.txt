@@ -18,8 +18,11 @@ h2. Version 0.6.6 (20/02/2011)
 
 | Max Bolingbroke | "Email":mailto:batterseapower@hotmail.com | "Website":http://blog.omega-prime.co.uk |
 
+* Update for Anki 1.2 (will not work properly with earlier Anki versions!)
+* IMPORTANT: we now determine which models are Mandarin models by looking at the model *name* rather than
+  its tags. This means that any deck you wish to use with the Pinyin toolkit MUST have the word Manadrin in its name.
 * Dictionary update
-* Attempt to fix "Fill missing card data" for Anki 1.2 (will not work with earlier Anki versions!)
+* Attempt to fix "Fill missing card data" (setModified error) 
 
 h2. Version 0.6.5 (22/06/2010)
 

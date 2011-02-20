@@ -132,6 +132,7 @@ defaultsettings = {
     ],
     
     # Only decks with this tag are processed
+    # Since Anki 1.2 models do not have tags, so we just look for this string in the name
     "modelTag" : "Mandarin",
 
     # Field names are listed in descending order of priority
