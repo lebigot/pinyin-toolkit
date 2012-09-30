@@ -2,8 +2,8 @@
 
 import unittest
 
-from pinyin.db import database
-from pinyin.numbers import *
+import pinyin.db
+from pinyin.numberutils import *
 
 
 englishdict = dictionary.PinyinDictionary.loadall()('en')
@@ -190,3 +190,4 @@ class HanziAsNumberTest(unittest.TestCase):
         actual_number, actual_rest_hanzi = parsehanziasnumber(hanzi)
         self.assertEquals(actual_rest_hanzi, expected_rest_hanzi)
         self.assertEquals(actual_number, expect_number)
+

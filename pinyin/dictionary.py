@@ -4,14 +4,16 @@
 import codecs
 import os
 import re
+import meanings
 
 import sqlalchemy
+from sqlalchemy.schema import Table
+
+from utils import Thunk, FactoryDict, toolkitdir, unzip
 
 from db import database
+
 from logger import log
-from model import *
-import meanings
-from utils import *
 
 
 def parseMeaning(meaning, simptradindex):
@@ -61,7 +63,7 @@ def fileSource(dictname):
 def databaseDictionarySource(tablename, simptradindex):
     log.info("Loading full dictionary from database table %s", tablename)
     
-    dicttable = sqlalchemy.Table(tablename, database.metadata, autoload=True)
+    dicttable = Table(tablename, database.metadata, autoload=True)
     maxcharacterlen = database.selectScalar(sqlalchemy.func.max(sqlalchemy.func.length(dicttable.c.HeadwordSimplified)))
     
     def inner(word):

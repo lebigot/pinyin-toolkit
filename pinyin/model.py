@@ -7,7 +7,7 @@ from BeautifulSoup import BeautifulSoup, Tag
 import sqlalchemy
 import unicodedata
 
-from db import database
+import db
 from logger import log
 import utils
 

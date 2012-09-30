@@ -140,12 +140,12 @@ class HanziGraphHook(hooks.Hook):
         # have screwed up the data in old decks. We select the created date for use in such cases:
         # <http://github.com/batterseapower/pinyin-toolkit/issues/closed/#issue/48>
         self.__hanzidatacache = self.mw.deck.s.all("""
-        select fields.value, cards.firstAnswered, cards.created from cards, fields, fieldModels, facts
+        select fields.value, cards.firstAnswered, cards.created from cards, fields, fieldModels, notes
         where
         cards.reps > 0 and
         cards.factId = fields.factId
-        and cards.factId = facts.id
-        and facts.modelId in %s
+        and cards.factId = notes.id
+        and notes.modelId in %s
         and fields.fieldModelId = fieldModels.id
         and fieldModels.name in %s
         order by firstAnswered

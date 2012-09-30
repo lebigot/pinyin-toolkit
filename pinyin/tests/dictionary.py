@@ -2,8 +2,8 @@
 
 import unittest
 
-from pinyin.db import database
 from pinyin.dictionary import *
+from pinyin.db import database
 
 
 dictionaries = PinyinDictionary.loadall()

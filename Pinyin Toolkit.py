@@ -27,7 +27,7 @@ A Plugin for the Anki Spaced Repition learning system <http://ichi2.net/anki/>
 if __name__ != "__main__":
     # Initialize the toolkit
     import pinyin.anki.main as main
-    from ankiqt import mw
+    from aqt import mw
     
     # Save a reference to the toolkit onto the mw, preventing garbage collection of PyQT objects
     mw.pinyintoolkit = main.PinyinToolkit(mw)
