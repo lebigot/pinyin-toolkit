@@ -17,8 +17,8 @@ except ImportError:
     sys.path.append(utils.toolkitdir("pinyin", "vendor", "perverseness"))
 
 # Sanity prevails from this point:
-for vendor_package in ["cjklib"]:
-    sys.path.append(utils.toolkitdir("pinyin", "vendor", vendor_package))
+#sys.path.append(utils.toolkitdir("pinyin", "vendor", "cjklib"))
+#sys.path.append(utils.toolkitdir("pinyin", "vendor", "sqlalchemy", "lib"))
 
 import config
 import db
@@ -29,7 +29,7 @@ import media
 import meanings
 import mocks
 import model
-import numbers
+import numberutils
 import statistics
 import transformations
 

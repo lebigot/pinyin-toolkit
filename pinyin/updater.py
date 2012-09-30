@@ -3,13 +3,13 @@
 import os
 
 import config
-from db import database
+import db
 import dictionary
 import dictionaryonline
 import factproxy
 import media
 import meanings
-import numbers
+import numberutils
 import model
 import transformations
 import updatergraph

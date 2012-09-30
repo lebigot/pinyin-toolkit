@@ -2,8 +2,8 @@
 
 import unittest
 
-from pinyin.db import database
 from pinyin.dictionary import *
+from pinyin.db import database
 
 
 dictionaries = PinyinDictionary.loadall()
@@ -136,3 +136,4 @@ class PinyinDictionaryTest(unittest.TestCase):
             return [flatten(token) for token in tokens]
         else:
             return None
+

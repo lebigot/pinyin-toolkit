@@ -5,7 +5,7 @@ import factproxy
 import meanings
 import media
 import model
-import numbers
+import numberutils
 import model
 import statistics
 import transformations

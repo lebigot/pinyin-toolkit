@@ -6,7 +6,7 @@ import re
 import sqlalchemy
 import unicodedata
 
-from db import database
+import db
 from logger import log
 import utils
 

@@ -195,7 +195,7 @@ def hanziStats(config, session):
 
 
 def characterIsSimpTrad(c, simpTrad):
-    from db import database
+    import db
     from cjklib import characterlookup
     
     thislocale, otherlocale = simpTrad == 0 and ("C", "T") or ("T", "C")
