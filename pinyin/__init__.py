@@ -17,8 +17,8 @@ except ImportError:
     sys.path.append(utils.toolkitdir("pinyin", "vendor", "perverseness"))
 
 # Sanity prevails from this point:
-#sys.path.append(utils.toolkitdir("pinyin", "vendor", "cjklib"))
-#sys.path.append(utils.toolkitdir("pinyin", "vendor", "sqlalchemy", "lib"))
+sys.path.append(utils.toolkitdir("pinyin", "vendor", "cjklib"))
+sys.path.append(utils.toolkitdir("pinyin", "vendor", "sqlalchemy", "lib"))
 
 import config
 import db
