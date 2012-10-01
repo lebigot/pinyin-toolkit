@@ -68,3 +68,7 @@ class HanziDailyStatsTest(unittest.TestCase):
     
     def nDaysAgo(self, n):
         return (time.time() - 100) + (n * 86400.0)
+
+if __name__ == '__main__':
+    unittest.main()
+

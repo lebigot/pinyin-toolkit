@@ -283,3 +283,7 @@ class MaskHanziTest(unittest.TestCase):
 
     def testDontMaskWesternForms(self):
         self.assertEquals(maskhanzi("1000AD", "XXX", [Word(Text(u"In 1000AD..."))]), [Word(Text(u"In 1000AD..."))])
+
+if __name__ == '__main__':
+    unittest.main()
+

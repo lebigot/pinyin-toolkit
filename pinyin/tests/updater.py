@@ -18,7 +18,7 @@ def assertUpdatesTo(updater, expression, theconfig, incomingfact, expectedfact, 
     updater(MockNotifier(), MockMediaManager(mediapacks), config.Config(utils.updated({ "dictlanguage" : "en" }, theconfig))).updatefact(actualfact, expression, **kwargs)
     assert_dict_equal(actualfact, expectedfact, values_as_assertions=True)
 
-class TestFieldUpdaterFromAudio(object):
+class TestFieldUpdaterFromAudio(unittest.TestCase):
     def testDoesntReformatWhenDisabled(self):
         self.assertUpdatesTo(u"hen3 hao3", dict(forcepinyininaudiotosoundtags = False), { "audio" : u"", "expression" : u"junk" }, { "audio" : u"hen3 hao3", "expression" : u"junk" })
     
@@ -49,7 +49,7 @@ class TestFieldUpdaterFromAudio(object):
                                                 "hen3.mp3" : "hen3.mp3", "hen2.mp3" : "hen2.mp3", "hao3.mp3" : "hao3.mp3" })]
         assertUpdatesTo(partial(FieldUpdater, "audio"), *args, mediapacks=mediapacks)
 
-class TestFieldUpdaterFromMeaning(object):
+class TestFieldUpdaterFromMeaning(unittest.TestCase):
     def testDoesntReformatWhenDisabled(self):
         config = dict(forcemeaningnumberstobeformatted = False)
         self.assertUpdatesTo(u"(1) yes (2) no", config, { "meaning" : "", "expression" : "junk" }, { "meaning" : "(1) yes (2) no", "expression" : "junk" })
@@ -71,7 +71,7 @@ class TestFieldUpdaterFromMeaning(object):
     def assertUpdatesTo(self, *args):
         assertUpdatesTo(partial(FieldUpdater, "meaning"), *args)
 
-class TestFieldUpdaterFromReading(object):
+class TestFieldUpdaterFromReading(unittest.TestCase):
     def testDoesntReformatWhenDisabled(self):
         config = dict(forcereadingtobeformatted = False)
         self.assertUpdatesTo(u"hen3 hǎo", config, { "reading" : "", "expression" : "junk" }, { "reading" : u"hen3 hǎo", "expression" : "junk" })
@@ -121,7 +121,7 @@ class TestFieldUpdaterFromReading(object):
     def assertUpdatesTo(self, *args, **kwargs):
         assertUpdatesTo(partial(FieldUpdater, "reading"), *args, **kwargs)
 
-class TestFieldUpdaterFromExpression(object):
+class TestFieldUpdaterFromExpression(unittest.TestCase):
     def testReusesOldValueIfNoDelta(self):
         self.assertUpdatesTo(None, dict(colorizedpinyingeneration = False, tonedisplay = "numeric", readinggeneration = True),
             { "expression" : u"书", "reading" : "" },
@@ -209,3 +209,7 @@ class TestFieldUpdaterFromExpression(object):
                         { "shu1.mp3" : "shu1.mp3", "shu1.ogg" : "shu1.ogg", "san1.mp3" : "san1.mp3", "qi1.ogg" : "qi1.ogg",
                           "Kai1.mp3" : "location/Kai1.mp3", "hen3.mp3" : "hen3.mp3", "hen2.mp3" : "hen2.mp3", "hao3.mp3" : "hao3.mp3" }, quantitydigitmediadict))]
         assertUpdatesTo(FieldUpdaterFromExpression, *args, mediapacks=mediapacks)
+
+if __name__ == '__main__':
+    unittest.main()
+

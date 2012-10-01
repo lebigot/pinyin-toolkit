@@ -9,7 +9,8 @@ import meanings
 import sqlalchemy
 from sqlalchemy.schema import Table
 
-from utils import Thunk, FactoryDict, toolkitdir, unzip
+from model import Word, Text, tokenizespaceseperatedtext, tonedcharactersfromreading
+from utils import *
 
 from db import database
 

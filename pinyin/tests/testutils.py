@@ -40,5 +40,3 @@ def sanitizequantitydigits(mwaudio):
     for quantitydigit in quantitydigitpinyin:
         mwaudio = mwaudio.replace(quantitydigit, "X")
     return mwaudio
-
-

@@ -12,7 +12,7 @@ import pinyin.utils
 from pinyin.mocks import *
 
 
-class TestUpdaterGraphGeneralFunctionality(object):
+class TestUpdaterGraphGeneralFunctionality(unittest.TestCase):
     def testDoesntUpdateNonGeneratedFields(self):
         updaters = [
             ("output", lambda _: "modified output", ("input",))
@@ -61,7 +61,7 @@ class TestUpdaterGraphGeneralFunctionality(object):
                 graph = filledgraphforupdaters(updaters, { field : "", other_field : "present!", "output" : "" }, { field : "go" })
                 yield assert_equal, graph["output"][1](), "from " + field
 
-class TestUpdaterGraphUpdaters(object):
+class TestUpdaterGraphUpdaters(unittest.TestCase):
     def testEverythingEnglish(self):
         config = dict(prefersimptrad = "simp", forceexpressiontobesimptrad = False, tonedisplay = "tonified", hanzimasking = False,
                         emphasisemainmeaning = False, meaningnumbering = "circledChinese", colormeaningnumbers = False, meaningseperator = "lines",
@@ -343,3 +343,7 @@ class TestUpdaterGraphUpdaters(object):
         else:
             assert_dict_equal(dict([(key, graph[key][1]()) for key in expected.keys()]), expected, values_as_assertions=True)
         notifierassertion(notifier)
+
+if __name__ == '__main__':
+    unittest.main()
+

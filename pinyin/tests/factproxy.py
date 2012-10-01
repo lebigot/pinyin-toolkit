@@ -58,3 +58,7 @@ class MarkingTest(unittest.TestCase):
     
     def testUnmarkingUnmarkedIdempotent(self):
         self.assertEquals(unmarkgeneratedfield("foo"), "foo")
+
+if __name__ == '__main__':
+    unittest.main()
+

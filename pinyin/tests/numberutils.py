@@ -191,3 +191,6 @@ class HanziAsNumberTest(unittest.TestCase):
         self.assertEquals(actual_rest_hanzi, expected_rest_hanzi)
         self.assertEquals(actual_number, expect_number)
 
+if __name__ == '__main__':
+    unittest.main()
+

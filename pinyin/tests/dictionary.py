@@ -4,6 +4,7 @@ import unittest
 
 from pinyin.dictionary import *
 from pinyin.db import database
+from pinyin.model import ToneInfo, flatten, tokenizespaceseperatedtext
 
 
 dictionaries = PinyinDictionary.loadall()
@@ -136,4 +137,7 @@ class PinyinDictionaryTest(unittest.TestCase):
             return [flatten(token) for token in tokens]
         else:
             return None
+
+if __name__ == '__main__':
+    unittest.main()
 

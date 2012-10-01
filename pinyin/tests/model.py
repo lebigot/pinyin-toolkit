@@ -432,3 +432,7 @@ class TonedCharactersFromReadingTest(unittest.TestCase):
                           [Word(Text(u"ABCD"))])
         self.assertEquals(tonedcharactersfromreading(u"ABCD", [Word(Pinyin.parse("yi1"))]),
                           [Word(Text(u"ABCD"))])
+
+if __name__ == '__main__':
+    unittest.main()
+

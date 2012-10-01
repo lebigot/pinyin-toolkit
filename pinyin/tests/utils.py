@@ -200,3 +200,7 @@ class PythonFormatStringTest(unittest.TestCase):
 
     def assertParses(self, str, to):
         self.assertEquals(list(parseFormatString(str)), to)
+
+
+if __name__ == '__main__':
+    unittest.main()

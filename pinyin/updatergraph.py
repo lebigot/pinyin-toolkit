@@ -9,7 +9,7 @@ import dictionaryonline
 from factproxy import isblankfield, isgeneratedfield, unmarkgeneratedfield
 import media
 import meanings
-import numbers
+import numberutils
 import model
 import transformations
 from utils import * # NB: we get "all" from here on Python 2.4
@@ -177,7 +177,7 @@ class GraphBasedUpdater(object):
                 # Interpret Hanzi as numbers. NB: only consult after CEDICT so that we
                 # handle curious numbers such as 'liang' using the dictionary
                 (u"",
-                 lambda: numbers.meaningfromnumberlike(expression, self.dictionary))
+                 lambda: numberutils.meaningfromnumberlike(expression, self.dictionary))
             ] + (self.config.shouldusegoogletranslate and [
                 # If the dictionary can't answer our question, ask Google Translate.
                 # If there is a long word followed by another word then this will be treated as a phrase.
@@ -253,7 +253,7 @@ class GraphBasedUpdater(object):
             # The audio field will contain <random number> <mw> <noun> for every possible MW
             # NB: we explicitly encode the tokens rather than doing a lookup because e.g. 几 has
             # several readings, but we know precisely the one we want here and can avoid ambiguity
-            dictreading.append(model.Word(random.choice(numbers.hanziquantitypinyin)))
+            dictreading.append(model.Word(random.choice(numberutils.hanziquantitypinyin)))
             dictreading.extend(mwpinyinwords)
             dictreading.extend(noundictreading)
             # This comma doesn't currently do anything, but it might come in useful if we
@@ -269,7 +269,7 @@ class GraphBasedUpdater(object):
     def expression2dictreading(self, expression):
         dictreadingsources = [
                 # Get the reading by considering the text as a (Western) number
-                lambda: numbers.readingfromnumberlike(expression, self.dictionary),
+                lambda: numberutils.readingfromnumberlike(expression, self.dictionary),
                 # Use CEDICT to get reading (always succeeds)
                 lambda: self.dictionary.reading(expression)
             ]

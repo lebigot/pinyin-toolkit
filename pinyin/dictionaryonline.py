@@ -4,7 +4,7 @@
 import urllib2
 import re
 
-#from model import *
+from model import Text, Word
 from logger import log
 import utils
 
