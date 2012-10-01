@@ -67,7 +67,7 @@ class DownloadedMediaTest(unittest.TestCase):
             
             # Verify the basic file system layout
             packpath = os.path.join(path, "Example Pack")
-            self.assertEquals(os.listdir(packpath), ["a.mp3", "b.mp3", "binary", "nested"])
+            self.assertEquals(sorted(os.listdir(packpath)), ["a.mp3", "b.mp3", "binary", "nested"])
             self.assertEquals(os.listdir(os.path.join(packpath, "nested")), ["c.mp3"])
             
             # Verify file contents
@@ -182,3 +182,7 @@ class LegacyMediaTest(unittest.TestCase):
     
     def testDiscardInvalidImportedFiles(self):
         self.assertEquals(discoverlegacymedia(["HASH1.mp3"], [(os.path.join("foo", "hello.mp3"), "HASH1.mp3"), (os.path.join("foo", "world.ogg"), "HASH2.ogg")]), [])
+
+if __name__ == '__main__':
+    unittest.main()
+

@@ -82,3 +82,7 @@ class MeaningFormatterTest(unittest.TestCase):
     
     def parseunflat(self, simplifiedcharindex, prefersimptrad, definition, tonedchars_callback=None):
         return MeaningFormatter(simplifiedcharindex, prefersimptrad).parsedefinition(definition, tonedchars_callback=tonedchars_callback)
+
+if __name__ == '__main__':
+    unittest.main()
+

@@ -404,3 +404,7 @@ class FieldUpdaterFromExpressionTest(unittest.TestCase):
         FieldUpdaterFromExpression(notifier, mediamanager, config.Config(utils.updated({ "dictlanguage" : "en" }, kwargs))).updatefact(factclone, expression)
         
         return notifier.infos, factclone
+
+if __name__ == '__main__':
+    unittest.main()
+

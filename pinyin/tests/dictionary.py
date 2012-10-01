@@ -4,6 +4,7 @@ import unittest
 
 from pinyin.dictionary import *
 from pinyin.db import database
+from pinyin.model import ToneInfo, flatten, tokenizespaceseperatedtext
 
 
 dictionaries = PinyinDictionary.loadall()
@@ -168,3 +169,7 @@ class PinyinConverterTest(unittest.TestCase):
     # Test helpers
     def reading(self, what):
         return flatten(englishdict.reading(what))
+
+if __name__ == '__main__':
+    unittest.main()
+

@@ -140,3 +140,7 @@ class ConfigTest(unittest.TestCase):
         
     def testShouldUseGoogleTranslateShouldUse(self):
         self.assertTrue(Config({ "fallbackongoogletranslate" : True }).shouldusegoogletranslate)
+
+
+if __name__ == '__main__':
+    unittest.main()

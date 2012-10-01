@@ -34,3 +34,7 @@ class FactProxyTest(unittest.TestCase):
         fact = { "Foo" : "Meh" }
         FactProxy({"key" : ["foo"]}, fact)["key"] = "Bye"
         self.assertEquals(fact, { "Foo" : "Bye" })
+
+if __name__ == '__main__':
+    unittest.main()
+

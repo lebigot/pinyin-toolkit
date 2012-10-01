@@ -165,3 +165,6 @@ class FactoryDictTest(unittest.TestCase):
         dict[3] = "Bye"
         self.assertEquals(dict[2], "Hello")
         self.assertEquals(dict[3], "Bye")
+
+if __name__ == '__main__':
+    unittest.main()

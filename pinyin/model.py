@@ -7,9 +7,10 @@ from BeautifulSoup import BeautifulSoup, Tag
 import sqlalchemy
 import unicodedata
 
-import db
-from logger import log
 import utils
+from db import database
+
+from logger import log
 
 
 def opt_dict_arg_repr(dict):

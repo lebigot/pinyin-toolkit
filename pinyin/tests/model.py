@@ -377,5 +377,11 @@ class TonedCharactersFromReadingTest(unittest.TestCase):
                           [Text(u"1"), Text(u"9"), Text(u"9"), Text(u"4")])
     
     def testTonesDontMatchChars(self):
-        self.assertEquals(tonedcharactersfromreading(u"ABCD", [Pinyin.parse("yi1"), Pinyin.parse("shi2"), Pinyin.parse("jiu3"), Pinyin.parse("jiu3"), Pinyin.parse("shi2"), Pinyin.parse("si4")]),
-                          [Text(u"ABCD")])
+        self.assertEquals(tonedcharactersfromreading(u"ABCD", [Word(Pinyin.parse("yi1"), Pinyin.parse("shi2"), Pinyin.parse("jiu3"), Pinyin.parse("jiu3"), Pinyin.parse("shi2"), Pinyin.parse("si4"))]),
+                          [Word(Text(u"ABCD"))])
+        self.assertEquals(tonedcharactersfromreading(u"ABCD", [Word(Pinyin.parse("yi1"))]),
+                          [Word(Text(u"ABCD"))])
+
+if __name__ == '__main__':
+    unittest.main()
+
