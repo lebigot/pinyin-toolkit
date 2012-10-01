@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import cjklib.build
-import cjklib.dbconnector
 import re
 import shutil
-import sqlalchemy
 import tempfile
 import os
 import zipfile
@@ -12,6 +9,9 @@ import zipfile
 from pinyin.logger import log
 import pinyin.utils
 
+import sqlalchemy
+import cjklib.build
+import cjklib.dbconnector
 
 class DBBuilder(object):
     wantgroups = [
