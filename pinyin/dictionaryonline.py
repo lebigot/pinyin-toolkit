@@ -3,6 +3,7 @@
 
 import urllib2
 import re
+import json
 
 from model import Text, Word
 from logger import log
@@ -58,7 +59,7 @@ def gCheck(destlanguage='en'):
 # The lookup function is based on code from the Chinese Example Sentence Plugin by <aaron@lamelion.com>
 def lookup(query, destlanguage):
     # Set up URL
-    url = "http://translate.google.com/translate_a/t?client=t&text=%s&sl=%s&tl=%s" % (utils.urlescape(query), 'zh-CN', destlanguage)
+    url = "http://translate.google.com/translate_a/t?client=j&text=%s&sl=%s&tl=%s" % (utils.urlescape(query), 'zh-CN', destlanguage)
     con = urllib2.Request(url, headers={'User-Agent':'Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11'}, origin_req_host='http://translate.google.com')
     
     # Open the connection
@@ -132,118 +133,8 @@ def lookup(query, destlanguage):
         raise ValueError("Couldn't deal with the correctly-parsed response %s from Google" % str(result))
 
 def parsegoogleresponse(response):
-    # This code is basically a hand-rolled (and rather specialised) LL parser
-    # for the kinds of strings we get back from Google Translate. We can deal with:
-    #  * String literals (with escaping) of the form "foo\tbar", possibly containing Unicode
-    #  * Numeric literals (returned as longs)
-    #  * List literals
-    #  * Dictionary literals
-    
-    itemseperatorregex = re.compile('\\s*,')
-    listendregex = re.compile('\\s*\\]')
-    kvpseperatorregex = re.compile('\\s*:')
-    dictendregex = re.compile('\\s*\\}')
-    
-    def literaltoken(match, what):
-        return match, what
-    
-    def stringtoken(match, what):
-        # Remove escape characters from the captured string with eval - nasty!
-        string = eval(u'u"%s"' % match.group(1))
-        return string, what
-    
-    def numbertoken(match, what):
-        return long(match.group(0)), what
-    
-    def listtoken(match, what):
-        thelist = []
-        while True:
-            # Process this list item
-            item, what = expraction(what)
-            thelist.append(item)
-            
-            # End of item - must be followed by a comma or closing bracket
-            whataftercomma = makemunchaction(itemseperatorregex)(what)
-            if whataftercomma is None:
-                # End of list: continue after the closing bracket
-                return thelist, unfailing("the end of a list", makemunchaction(listendregex))(what)
-            else:
-                # Comma: expect another item, so continue after the comma
-                what = whataftercomma
-    
-    def dicttoken(match, what):
-        thedict = {}
-        while True:
-            # Process this dict key/value pair
-            key, what = expraction(what)
-            _, what = unfailing("a dictionary key-value pair seperator", makeparseaction(kvpseperatorregex, literaltoken))(what)
-            value, what = expraction(what)
-            thedict[key] = value
-            
-            # End of item - must be followed by a comma or closing bracket
-            whataftercomma = makemunchaction(itemseperatorregex)(what)
-            if whataftercomma is None:
-                # End of dict: continue after the closing brace
-                return thedict, unfailing("the end of a dictionary", makemunchaction(dictendregex))(what)
-            else:
-                # Comma: expect another item, so continue after the comma
-                what = whataftercomma
-    
-    # Utility to consume from the string using the regex and return the new string if successful
-    makemunchaction = lambda regex: makeparseaction(regex, lambda match, what: what)
+    return json.loads(response)
 
-    def makeparseaction(regex, processor):
-        def inner(what):
-            match = regex.match(what)
-        
-            # Run processor if the regular expression matches
-            if match:
-                return processor(match, what[match.end():])
-            else:
-                return None
-        
-        return inner
-    
-    def makechoiceaction(actions):
-        def inner(what):
-            # Match processors from top to bottom
-            for action in actions:
-                result = action(what)
-                if result:
-                    return result
-
-            return None
-        
-        return inner
-
-    def unfailing(text, action):
-        def inner(what):
-            result = action(what)
-            if result is None:
-                raise ValueError("Couldn't parse %s when expecting %s" % (repr(what), text))
-            else:
-                return result
-            
-        return inner
-
-    # Action table keyed off regular expressions.  Matched top to bottom against
-    # the current string, with the corresponding token handler fired if the regex
-    # can deal with it.
-    stringaction = makeparseaction(re.compile('"((?:[^\\\\"]|\\\\.)*)"'), stringtoken)
-    intaction = makeparseaction(re.compile('-?[0-9]+'), numbertoken)
-    listaction = makeparseaction(re.compile('\\['), listtoken)
-    dictaction = makeparseaction(re.compile('\\{'), dicttoken)
-    
-    # Parse loop using the action table
-    whitespacetoken = lambda match, what: expraction(what)
-    expraction = unfailing("an expression", makechoiceaction([stringaction, intaction, listaction, dictaction, makeparseaction(re.compile('\\s+'), whitespacetoken)]))
-    
-    # Use the constructed action table to parse the supplied string
-    value, rest = expraction(response)
-    if len(rest) != 0:
-        raise ValueError("Unexpected trailing characters %s" % repr(rest))
-    else:
-        return value
 
 
 ################################################################################

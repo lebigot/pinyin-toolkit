@@ -5,7 +5,6 @@ import os
 import config
 import db
 import dictionary
-import dictionaryonline
 import factproxy
 import media
 import meanings
