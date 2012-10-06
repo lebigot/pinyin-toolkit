@@ -40,6 +40,6 @@ class HanziStatsHook(hooks.Hook):
             self.mw.help.showText(html, py=dict([(k, lambda action=action: finish(action())) for k, action in python_actions]))
         
         self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: finish(hanziStats(self.config, self.mw.deck.s)))
-        self.mw.mainWin.menuTools.addAction(self.action)
+        self.mw.form.menuTools.addAction(self.action)
         
         log.info('Hanzi statistics plugin loaded')

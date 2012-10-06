@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtCore import QVariant, SIGNAL
-from PyQt4.QtGui import QButtonGroup, QColor, QIcon, QPalette
+from aqt.qt import *
 
 import pinyin.anki.keys
 import pinyin.config
@@ -184,9 +183,9 @@ class PreferencesController(object):
     
     def addComboItem(self, combo, icon, name, data):
         if icon:
-            combo.addItem(QIcon(icon), name, QVariant(data))
+            combo.addItem(QIcon(icon), name, data)
         else:
-            combo.addItem(name, QVariant(data))
+            combo.addItem(name, data)
 
     def addComboSeparator(self, combo):
         combo.insertSeparator(combo.count())
@@ -329,11 +328,11 @@ class ComboMapping(Mapping):
         self.combobox.connect(self.combobox, SIGNAL("currentIndexChanged(int)"), lambda n: self.updateModel(n))
     
     def updateModel(self, n):
-        self.updateModelValue(utils.fromQVariant(self.combobox.itemData(n)))
+        self.updateModelValue(self.combobox.itemData(n))
     
     def updateViewValue(self, value):
         for n in range(0, self.combobox.count()):
-            if utils.fromQVariant(self.combobox.itemData(n)) == value:
+            if self.combobox.itemData(n) == value:
                 self.combobox.setCurrentIndex(n)
                 return
         

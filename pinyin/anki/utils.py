@@ -10,7 +10,7 @@ def persistconfig(mw, config):
     #
     # However, because we can't pickle the Config directly we need to make sure the Anki
     # configuration is updated with the new value whenever we modify the config.
-    mw.config["pinyintoolkit"] = config.settings
+    mw.pm.profile["pinyintoolkit"] = config.settings
 
 def suitableFacts(modelTag, deck):
     for model in deck.models:

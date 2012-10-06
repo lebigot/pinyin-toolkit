@@ -11,7 +11,7 @@
 # License:     GNU GPL
 # ---------------------------------------------------------------------------
 
-from PyQt4 import QtGui
+from aqt.qt import QtGui
 
 import time
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4 import QtGui, QtCore
+from aqt.qt import *
 
 import anki.hooks
 import anki.utils
@@ -105,7 +105,7 @@ class FocusHook(Hook):
             pinyin.utils.suppressexceptions(lambda: updater.updatefact(factproxy, fieldvalue))
     
     def install(self):
-        from anki.hooks import addHook, removeHook
+        from anki.hooks import addHook, remHook
         
         # Install hook into focus event of Anki: we regenerate the model information when
         # the cursor moves from the Expression/Reading/whatever field to another field
@@ -115,7 +115,7 @@ class FocusHook(Hook):
             # On versions of Anki that still had Chinese support baked in, remove the
             # provided hook from this event before we replace it with our own:
             from anki.features.chinese import onFocusLost as oldHook
-            removeHook('fact.focusLost', oldHook)
+            remHook('fact.focusLost', oldHook)
         except ImportError:
             pass
         
@@ -136,82 +136,83 @@ class FieldShrinkingHook(Hook):
         log.info("Installing field height adjustment hook")
         addHook("makeField", self.adjustFieldHeight)
 
-class FactEditorShortcutKeysHook(Hook):
-    def install(self):
-        from anki.hooks import wrap
-        import ankiqt.ui.facteditor
-
-        log.info("Installing a fact editor shortcut key hook")
-        ankiqt.ui.facteditor.FactEditor.setupFields = wrap(ankiqt.ui.facteditor.FactEditor.setupFields, self.setupShortcuts, "after")
-        self.setupShortcuts(self.mw.editor)
+#class FactEditorShortcutKeysHook(Hook):
+#    def install(self):
+#        from anki.hooks import wrap
+#        import ankiqt.ui.facteditor
+#
+#        log.info("Installing a fact editor shortcut key hook")
+#        ankiqt.ui.facteditor.FactEditor.setupFields = wrap(ankiqt.ui.facteditor.FactEditor.setupFields, self.setupShortcuts, "after")
+#        self.setupShortcuts(self.mw.editor)
 
 # Shrunk version of color shortcut plugin merged with Pinyin Toolkit to give that functionality without the seperate download.
 # Original version by Damien Elmes <anki@ichi2.net>
-class ColorShortcutKeysHook(FactEditorShortcutKeysHook):
-    def setColor(self, editor, i, sandhify):
-        log.info("Got color change event for color %d, sandhify %s", i, sandhify)
-        
-        color = (self.config.tonecolors + self.config.extraquickaccesscolors)[i - 1]
-        if sandhify:
-            color = pinyin.transformations.sandhifycolor(color)
-        
-        focusededit = editor.focusedEdit()
-        
-        cursor = focusededit.textCursor()
-        focusededit.setTextColor(QtGui.QColor(color))
-        cursor.clearSelection()
-        focusededit.setTextCursor(cursor)
-    
-    def setupShortcuts(self, editor):
-        # Loop through the 8 F[x] keys, setting each one up
-        # Note: Ctrl-F9 is the HTML editor. Don't do this as it causes a conflict
-        log.info("Setting up color shortcut keys on fact editor")
-        for i in range(1, 9):
-            for sandhify in [True, False]:
-                keysequence = (sandhify and pinyin.anki.keys.sandhiModifier + "+" or "") + pinyin.anki.keys.shortcutKeyFor(i)
-                QtGui.QShortcut(QtGui.QKeySequence(keysequence), editor.widget,
-                                lambda i=i, sandhify=sandhify: self.setColor(editor, i, sandhify))
-
-class BlankFactShortcutKeyHook(FactEditorShortcutKeysHook):
-    def blankFields(self, editor):
-        # Bit of an abuse of the FactProxy - but it works, since the fields are keyed off the field name,
-        # and the fact proxy doesn't actually care about the domain type at all
-        factproxy = pinyin.factproxy.FactProxy(self.config.candidateFieldNamesByKey, editor.fields)
-        for k in factproxy:
-            # Nick doesn't want expression to be blanked. We could hack it in:
-            #if k == "expression":
-            #    continue
-            # BUT if we do this then you need to explicitly change the expression to something else before
-            # the toolkit will regenerate the fields (because the remember value for the expression == the new one).
-            
-            _field, widget = factproxy[k]
-            widget.setText(u"")
-        
-        # FIXME: there is actually a bug here. If the user:
-        #  1) Has the Expression field selected
-        #  2) Blanks the fact
-        #  3) Reenters the same expression
-        #
-        # Then some of the fields may not be refreshed. The reason is that the knownfieldcontents in the
-        # FocusHook will be out of date and still contain the value from before the refresh. When we compare
-        # it with the new value, they will look the same.
-        #
-        # It's not that easy to fix this, and it's not likely to be a common use case anyway, so I'm ignoring it.
-    
-    def setupShortcuts(self, editor):
-        log.info("Setting up fact blanking shortcut key on fact editor")
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+Alt+b"), editor.widget, lambda editor=editor: self.blankFields(editor))
-
+#class ColorShortcutKeysHook(FactEditorShortcutKeysHook):
+#    def setColor(self, editor, i, sandhify):
+#        log.info("Got color change event for color %d, sandhify %s", i, sandhify)
+#        
+#        color = (self.config.tonecolors + self.config.extraquickaccesscolors)[i - 1]
+#        if sandhify:
+#            color = pinyin.transformations.sandhifycolor(color)
+#        
+#        focusededit = editor.focusedEdit()
+#        
+#        cursor = focusededit.textCursor()
+#        focusededit.setTextColor(QColor(color))
+#        cursor.clearSelection()
+#        focusededit.setTextCursor(cursor)
+#    
+#    def setupShortcuts(self, editor):
+#        # Loop through the 8 F[x] keys, setting each one up
+#        # Note: Ctrl-F9 is the HTML editor. Don't do this as it causes a conflict
+#        log.info("Setting up color shortcut keys on fact editor")
+#        for i in range(1, 9):
+#            for sandhify in [True, False]:
+#                keysequence = (sandhify and pinyin.anki.keys.sandhiModifier + "+" or "") + pinyin.anki.keys.shortcutKeyFor(i)
+#                QShortcut(QKeySequence(keysequence), editor.widget,
+#                                lambda i=i, sandhify=sandhify: self.setColor(editor, i, sandhify))
+#
+#class BlankFactShortcutKeyHook(FactEditorShortcutKeysHook):
+#    def blankFields(self, editor):
+#        # Bit of an abuse of the FactProxy - but it works, since the fields are keyed off the field name,
+#        # and the fact proxy doesn't actually care about the domain type at all
+#        factproxy = pinyin.factproxy.FactProxy(self.config.candidateFieldNamesByKey, editor.fields)
+#        for k in factproxy:
+#            # Nick doesn't want expression to be blanked. We could hack it in:
+#            #if k == "expression":
+#            #    continue
+#            # BUT if we do this then you need to explicitly change the expression to something else before
+#            # the toolkit will regenerate the fields (because the remember value for the expression == the new one).
+#            
+#            _field, widget = factproxy[k]
+#            widget.setText(u"")
+#        
+#        # FIXME: there is actually a bug here. If the user:
+#        #  1) Has the Expression field selected
+#        #  2) Blanks the fact
+#        #  3) Reenters the same expression
+#        #
+#        # Then some of the fields may not be refreshed. The reason is that the knownfieldcontents in the
+#        # FocusHook will be out of date and still contain the value from before the refresh. When we compare
+#        # it with the new value, they will look the same.
+#        #
+#        # It's not that easy to fix this, and it's not likely to be a common use case anyway, so I'm ignoring it.
+#    
+#    def setupShortcuts(self, editor):
+#        log.info("Setting up fact blanking shortcut key on fact editor")
+#        QShortcut(QKeySequence("Ctrl+Alt+b"), editor.widget, lambda editor=editor: self.blankFields(editor))
+#
 class HelpHook(Hook):
     def install(self):
         # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QtGui.QAction("Pinyin Toolkit", self.mw)
+        self.action = QAction(self.mw)
+        self.action.setText("Pinyin Toolkit")
         self.action.setStatusTip("Help for the Pinyin Toolkit available at our website")
         self.action.setEnabled(True)
         
-        helpUrl = QtCore.QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
-        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: QtGui.QDesktopServices.openUrl(helpUrl))
-        self.mw.mainWin.menuHelp.addAction(self.action)
+        helpUrl = QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
+        self.mw.form.menuHelp.addAction(self.action)
+        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: QDesktopServices.openUrl(helpUrl))
 
 class PreferencesHook(Hook):
     menutext = "Preferences"
@@ -230,7 +231,7 @@ class PreferencesHook(Hook):
         result = preferences.exec_()
         
         # We only need to change the configuration if the user accepted the dialog
-        if result == QtGui.QDialog.Accepted:
+        if result == QDialog.Accepted:
             # Update by the simple method of replacing the settings dictionaries: better make sure that no
             # other part of the code has cached parts of the configuration
             self.config.settings = controller.model.settings
@@ -240,13 +241,13 @@ class PreferencesHook(Hook):
     
     def install(self):
         # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QtGui.QAction("Pinyin Tool&kit Preferences", self.mw)
+        self.action = QAction("Pinyin Tool&kit Preferences", self.mw)
         self.action.setStatusTip("Configure the Pinyin Toolkit")
-        self.action.setMenuRole(QtGui.QAction.PreferencesRole)
+        self.action.setMenuRole(QAction.PreferencesRole)
         self.action.setEnabled(True)
         
-        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: self.triggered())
-        self.mw.mainWin.menu_Settings.addAction(self.action)
+        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: self.triggered())
+        self.mw.form.menuTools.addAction(self.action)
 
 class ToolMenuHook(Hook):
     pinyinToolkitMenu = None
@@ -257,11 +258,12 @@ class ToolMenuHook(Hook):
         
         # Build and install the top level menu if it doesn't already exist
         if ToolMenuHook.pinyinToolkitMenu is None:
-            ToolMenuHook.pinyinToolkitMenu = QtGui.QMenu("Pinyin Toolkit", self.mw.mainWin.menuTools)
-            self.mw.mainWin.menuTools.addMenu(ToolMenuHook.pinyinToolkitMenu)
+            ToolMenuHook.pinyinToolkitMenu = QMenu("Pinyin Toolkit", self.mw.form.menuTools)
+            self.mw.form.menuTools.addMenu(ToolMenuHook.pinyinToolkitMenu)
+
         
         # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QtGui.QAction(self.__class__.menutext, self.mw)
+        self.action = QAction(self.__class__.menutext, self.mw)
         self.action.setStatusTip(self.__class__.menutooltip)
         self.action.setEnabled(True)
         
@@ -269,7 +271,7 @@ class ToolMenuHook(Hook):
         # We try and make sure that we don't run the action if there is no deck presently, to at least suppress some errors
         # in situations where the users select the menu items (this is possible on e.g. OS X). It would be better to disable
         # the menu items entirely in these situations, but there is no suitable hook for that presently.
-        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: self.mw.deck is not None and self.triggered())
+        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: self.mw.deck is not None and self.triggered())
         ToolMenuHook.pinyinToolkitMenu.addAction(self.action)
 
 class MassFillHook(ToolMenuHook):
@@ -332,8 +334,8 @@ hookbuilders = [
     # Widget adjusting hooks
     FieldShrinkingHook,
     # Keybord hooks
-    ColorShortcutKeysHook,
-    BlankFactShortcutKeyHook,
+     # ColorShortcutKeysHook,
+     # BlankFactShortcutKeyHook,
     # Menu hooks
     HelpHook,
     PreferencesHook,
