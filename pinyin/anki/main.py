@@ -38,7 +38,8 @@ class PinyinToolkit(object):
         #
         # Debugging this was a fair bit of work!
         from anki.hooks import addHook
-        addHook("init", lambda: self.initialize(mw))
+        #addHook("ptkinit", lambda: self.initialize(mw))
+        self.initialize(mw)
     
     def initialize(self, mw):
         log.info("Pinyin Toolkit is initializing")
@@ -54,11 +55,12 @@ class PinyinToolkit(object):
             return
         
         # Try and load the settings from the Anki config database
-        settings = mw.config.get("pinyintoolkit")
+        #settings = mw.pm.profile.get("pinyintoolkit")
+        settings = None
         if settings is None:
             # Initialize the configuration with default settings
             config = pinyin.config.Config()
-            utils.persistconfig(mw, config)
+            #utils.persistconfig(mw, config)
             
             # TODO: first-run activities:
             #  1) Guide user around the interface and what they can do
@@ -82,8 +84,9 @@ class PinyinToolkit(object):
             hook.install()
     
         # Tell Anki about the plugin
-        mw.registerPlugin("Mandarin Chinese Pinyin Toolkit", 4)
-        self.registerStandardModels()
+        # TODO: revisit this. upgrade to 2.0 call has changed to registerAddon but it doesn't do anything ...
+        #mw.addonManager.registerAddon("Mandarin Chinese Pinyin Toolkit", 4)
+        #self.registerStandardModels()
     
     def tryCreateAndLoadDatabase(self, mw, notifier):
         datatimestamp, satisfiers = pinyin.db.builder.getSatisfiers()

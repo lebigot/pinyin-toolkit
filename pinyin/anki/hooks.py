@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4 import QtGui, QtCore
+from aqt.qt import *
 
 import anki.utils
 
@@ -45,7 +45,7 @@ class FocusHook(Hook):
             pinyin.utils.suppressexceptions(lambda: updater.updatefact(factproxy, field.value))
     
     def install(self):
-        from anki.hooks import addHook, removeHook
+        from anki.hooks import addHook, remHook
         
         # Install hook into focus event of Anki: we regenerate the model information when
         # the cursor moves from the Expression/Reading/whatever field to another field
@@ -55,7 +55,7 @@ class FocusHook(Hook):
             # On versions of Anki that still had Chinese support baked in, remove the
             # provided hook from this event before we replace it with our own:
             from anki.features.chinese import onFocusLost as oldHook
-            removeHook('fact.focusLost', oldHook)
+            remHook('fact.focusLost', oldHook)
         except ImportError:
             pass
         
@@ -113,13 +113,14 @@ class ColorShortcutKeysHook(Hook):
 class HelpHook(Hook):
     def install(self):
         # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QtGui.QAction("Pinyin Toolkit", self.mw)
+        self.action = QAction(self.mw)
+        self.action.setText("Pinyin Toolkit")
         self.action.setStatusTip("Help for the Pinyin Toolkit available at our website")
         self.action.setEnabled(True)
         
-        helpUrl = QtCore.QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
-        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: QtGui.QDesktopServices.openUrl(helpUrl))
-        self.mw.mainWin.menuHelp.addAction(self.action)
+        helpUrl = QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
+        self.mw.form.menuHelp.addAction(self.action)
+        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: QDesktopServices.openUrl(helpUrl))
 
 class PreferencesHook(Hook):
     menutext = "Preferences"
@@ -138,7 +139,7 @@ class PreferencesHook(Hook):
         result = preferences.exec_()
         
         # We only need to change the configuration if the user accepted the dialog
-        if result == QtGui.QDialog.Accepted:
+        if result == QDialog.Accepted:
             # Update by the simple method of replacing the settings dictionaries: better make sure that no
             # other part of the code has cached parts of the configuration
             self.config.settings = controller.model.settings
@@ -148,13 +149,13 @@ class PreferencesHook(Hook):
     
     def install(self):
         # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QtGui.QAction("Pinyin Tool&kit Preferences", self.mw)
+        self.action = QAction("Pinyin Tool&kit Preferences", self.mw)
         self.action.setStatusTip("Configure the Pinyin Toolkit")
-        self.action.setMenuRole(QtGui.QAction.PreferencesRole)
+        self.action.setMenuRole(QAction.PreferencesRole)
         self.action.setEnabled(True)
         
-        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: self.triggered())
-        self.mw.mainWin.menu_Settings.addAction(self.action)
+        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: self.triggered())
+        self.mw.form.menuTools.addAction(self.action)
 
 class ToolMenuHook(Hook):
     pinyinToolkitMenu = None
@@ -165,11 +166,12 @@ class ToolMenuHook(Hook):
         
         # Build and install the top level menu if it doesn't already exist
         if ToolMenuHook.pinyinToolkitMenu is None:
-            ToolMenuHook.pinyinToolkitMenu = QtGui.QMenu("Pinyin Toolkit", self.mw.mainWin.menuTools)
-            self.mw.mainWin.menuTools.addMenu(ToolMenuHook.pinyinToolkitMenu)
+            ToolMenuHook.pinyinToolkitMenu = QMenu("Pinyin Toolkit", self.mw.form.menuTools)
+            self.mw.form.menuTools.addMenu(ToolMenuHook.pinyinToolkitMenu)
+
         
         # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QtGui.QAction(self.__class__.menutext, self.mw)
+        self.action = QAction(self.__class__.menutext, self.mw)
         self.action.setStatusTip(self.__class__.menutooltip)
         self.action.setEnabled(True)
         
@@ -177,7 +179,7 @@ class ToolMenuHook(Hook):
         # We try and make sure that we don't run the action if there is no deck presently, to at least suppress some errors
         # in situations where the users select the menu items (this is possible on e.g. OS X). It would be better to disable
         # the menu items entirely in these situations, but there is no suitable hook for that presently.
-        self.mw.connect(self.action, QtCore.SIGNAL('triggered()'), lambda: self.mw.deck is not None and self.triggered())
+        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: self.mw.deck is not None and self.triggered())
         ToolMenuHook.pinyinToolkitMenu.addAction(self.action)
 
 class MassFillHook(ToolMenuHook):

@@ -4,6 +4,8 @@
 import sys
 import traceback
 
+from aqt.utils import showInfo, showWarning
+
 
 """
 Notifier that actually displays the messages on screen.
@@ -14,8 +16,7 @@ class AnkiNotifier(object):
         self.alreadyshown = []
     
     def info(self, what):
-        import ankiqt.ui.utils
-        ankiqt.ui.utils.showInfo(what)
+        showInfo(what)
     
     def infoOnce(self, what):
         if not(what in self.alreadyshown):
@@ -26,5 +27,4 @@ class AnkiNotifier(object):
         if exception_info is None:
             exception_info = sys.exc_info()
         
-        import ankiqt.ui.utils
-        ankiqt.ui.utils.showWarning(text + u"\r\nThe exception was:\r\n" + "".join(traceback.format_exception(*exception_info)))
+        showWarning(text + u"\r\nThe exception was:\r\n" + "".join(traceback.format_exception(*exception_info)))
