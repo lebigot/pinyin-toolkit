@@ -23,9 +23,11 @@ import statsandgraphs
 import hanzistats
 
 hookbuilders = hooks.hookbuilders + [
-    # TODO: uncomment and get working..
+    # TODO: uncomment and get working ..
     # statsandgraphs.HanziGraphHook,
-    hanzistats.HanziStatsHook
+
+    # TODO: uncomment and get working ..
+    #hanzistats.HanziStatsHook
   ]
 
 class PinyinToolkit(object):
