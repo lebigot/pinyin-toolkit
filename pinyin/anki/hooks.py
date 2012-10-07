@@ -236,7 +236,7 @@ class ToolMenuHook(Hook):
 class MassFillHook(ToolMenuHook):
     def triggered(self):
         if not hasattr(self.mw, 'deck'):
-            return showInfo("No deck selected 同志!")
+            return showInfo(unicode("No deck selected 同志!", "UTF-8"))
 
         field = self.__class__.field
         log.info("User triggered missing information fill for %s" % field)
