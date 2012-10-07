@@ -235,8 +235,8 @@ class ToolMenuHook(Hook):
 
 class MassFillHook(ToolMenuHook):
     def triggered(self):
-        if not hasattr(self.mw, 'deck'):
-            return showInfo(unicode("No deck selected 同志!", "UTF-8"))
+        if self.mw.web.key == "deckBrowser":
+            return showInfo(u"No deck selected 同志!")
 
         field = self.__class__.field
         log.info("User triggered missing information fill for %s" % field)
