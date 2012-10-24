@@ -9,7 +9,7 @@ import meanings
 import sqlalchemy
 from sqlalchemy.schema import Table
 
-from model import Word, Text, tokenizespaceseperatedtext, tonedcharactersfromreading
+from model import *
 from utils import *
 
 from db import database

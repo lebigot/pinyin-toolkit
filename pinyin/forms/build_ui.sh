@@ -9,7 +9,7 @@ pyuic=`which pyuic4`
 pyrcc=`which pyrcc4`
 
 # Clean the directory up
-rm -rdf scratch generated
+rm -rf scratch generated
 
 # Make directories
 mkdir scratch
@@ -47,4 +47,4 @@ echo "Building resources.."
 (cd icons && $pyrcc icons.qrc -o ../generated/icons_rc.py)
 
 # Destroy scratch directory
-rm -rd scratch
+rm -rf scratch

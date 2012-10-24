@@ -11,12 +11,11 @@
 # License:     GNU GPL
 # ---------------------------------------------------------------------------
 
-from aqt.qt import QtGui
+from aqt.qt import *
 
 import time
 
 from anki.hooks import wrap
-import anki.utils
 
 import hooks
 
@@ -183,7 +182,7 @@ class HanziGraphHook(hooks.Hook):
         # Append our own graph at the end
         from ankiqt.ui.graphs import AdjustableFigure
         extragraph = AdjustableFigure(graphwindow.parent, 'hanzi', lambda days: self.calculateHanziData(graphwindow, days), graphwindow.range)
-        extragraph.addWidget(QtGui.QLabel("<h1>Unique Hanzi (Cumulative, By HSK Level)</h1>"))
+        extragraph.addWidget(QLabel("<h1>Unique Hanzi (Cumulative, By HSK Level)</h1>"))
         graphwindow.vbox.addWidget(extragraph)
         graphwindow.widgets.append(extragraph)
         

@@ -3,7 +3,6 @@
 
 import os
 
-import config
 import db
 import dictionary
 import dictionaryonline
@@ -16,6 +15,7 @@ import utils
 import random
 import re
 
+from config import getconfig, updatecontrolflags
 from logger import log
 
 
@@ -47,7 +47,7 @@ def generateaudio(notifier, mediamanager, config, dictreading):
     return output_tags
 
 class FieldUpdaterFromAudio(object):
-    def __init__(self, notifier, mediamanager, config):
+    def __init__(self, notifier, mediamanager, config=getconfig()):
         self.notifier = notifier
         self.mediamanager = mediamanager
         self.config = config
@@ -73,9 +73,9 @@ class FieldUpdaterFromAudio(object):
         fact['audio'] = self.reformataudio(audio)
 
 class FieldUpdaterFromMeaning(object):
-    def __init__(self, config):
+    def __init__(self, config=getconfig()):
         self.config = config
-    
+
     def reformatmeaning(self, meaning):
         output = u""
         for recognised, match in utils.regexparse(re.compile(ur"\(([0-9]+)\)"), meaning):
@@ -97,7 +97,7 @@ class FieldUpdaterFromMeaning(object):
         fact['meaning'] = self.reformatmeaning(meaning)
 
 class FieldUpdaterFromReading(object):
-    def __init__(self, config):
+    def __init__(self, config=getconfig()):
         self.config = config
     
     def updatefact(self, fact, reading):
@@ -119,11 +119,11 @@ class FieldUpdaterFromReading(object):
         fact['reading'] = preparetokens(self.config, [model.Word(*model.tokenize(reading))])
 
 class FieldUpdaterFromExpression(object):
-    def __init__(self, notifier, mediamanager, config):
+    def __init__(self, notifier, mediamanager, config=getconfig()):
         self.notifier = notifier
         self.mediamanager = mediamanager
-        self.config = config
         self.dictionaries = dictionary.PinyinDictionary.loadall()
+        self.config = config
     
     dictionary = property(lambda self: self.dictionaries(self.config.dictlanguage))
     
@@ -183,7 +183,7 @@ class FieldUpdaterFromExpression(object):
             # The audio field will contain <random number> <mw> <noun> for every possible MW
             # NB: we explicitly encode the tokens rather than doing a lookup because e.g. 几 has
             # several readings, but we know precisely the one we want here and can avoid ambiguity
-            dictreading.append(model.Word(random.choice(numbers.hanziquantitypinyin)))
+            dictreading.append(model.Word(random.choice(numberutils.hanziquantitypinyin)))
             dictreading.extend(mwpinyinwords)
             dictreading.extend(noundictreading)
             # This comma doesn't currently do anything, but it might come in useful if we
@@ -239,7 +239,7 @@ class FieldUpdaterFromExpression(object):
     def getdictreading(self, expression):
         dictreadingsources = [
                 # Get the reading by considering the text as a (Western) number
-                lambda: numbers.readingfromnumberlike(expression, self.dictionary),
+                lambda: numberutils.readingfromnumberlike(expression, self.dictionary),
                 # Use CEDICT to get reading (always succeeds)
                 lambda: self.dictionary.reading(expression)
             ]
@@ -293,7 +293,7 @@ class FieldUpdaterFromExpression(object):
                     # Interpret Hanzi as numbers. NB: only consult after CEDICT so that we
                     # handle curious numbers such as 'liang' using the dictionary
                     (None,
-                     lambda: (numbers.meaningfromnumberlike(expression, self.dictionary), None))
+                     lambda: (numberutils.meaningfromnumberlike(expression, self.dictionary), None))
                 ] + (self.config.shouldusegoogletranslate and [
                     # If the dictionary can't answer our question, ask Google Translate.
                     # If there is a long word followed by another word then this will be treated as a phrase.
@@ -359,7 +359,7 @@ class FieldUpdaterFromExpression(object):
             #
             # NB: please do NOT do this if key isn't in updatecontrolflags, because that
             # indicates an error with the Toolkit that I'd like to get an exception for!
-            if not(key in fact and (key == "expression" or config.updatecontrolflags[key] is None or self.config.settings[config.updatecontrolflags[key]])):
+            if not(key in fact and (key == "expression" or updatecontrolflags[key] is None or self.config.settings[updatecontrolflags[key]])):
                 continue
             
             # If the field is not empty already then skip (so we don't overwrite it), unless:

@@ -3,7 +3,7 @@
 import copy
 import unittest
 
-import pinyin.config
+from pinyin.config import *
 from pinyin.db import database
 from pinyin.updater import *
 from pinyin.utils import Thunk
@@ -58,7 +58,7 @@ class FieldUpdaterFromAudioTest(unittest.TestCase):
         mediamanager = MockMediaManager(mediapacks)
 
         factclone = copy.deepcopy(fact)
-        FieldUpdaterFromAudio(notifier, mediamanager, config.Config(kwargs)).updatefact(factclone, audio)
+        FieldUpdaterFromAudio(notifier, mediamanager, Config(kwargs)).updatefact(factclone, audio)
 
         return notifier.infos, factclone
 
@@ -88,7 +88,7 @@ class FieldUpdaterFromMeaningTest(unittest.TestCase):
     # Test helpers
     def updatefact(self, reading, fact, **kwargs):
         factclone = copy.deepcopy(fact)
-        FieldUpdaterFromMeaning(config.Config(kwargs)).updatefact(factclone, reading)
+        FieldUpdaterFromMeaning(Config(kwargs)).updatefact(factclone, reading)
         return factclone
 
 class FieldUpdaterFromReadingTest(unittest.TestCase):
@@ -98,7 +98,7 @@ class FieldUpdaterFromReadingTest(unittest.TestCase):
     
     def testDoesSomethingWhenDisabledIfAlways(self):
         fact = { "reading" : "", "expression" : "junk" }
-        FieldUpdaterFromReading(config.Config({ "forcereadingtobeformatted" : False })).updatefactalways(fact, u"also junk")
+        FieldUpdaterFromReading(Config({ "forcereadingtobeformatted" : False })).updatefactalways(fact, u"also junk")
         self.assertEquals(fact, { "reading" : "also junk", "expression" : "junk" })
     
     def testWorksIfFieldMissing(self):
@@ -126,7 +126,7 @@ class FieldUpdaterFromReadingTest(unittest.TestCase):
     # Test helpers
     def updatefact(self, reading, fact, **kwargs):
         factclone = copy.deepcopy(fact)
-        FieldUpdaterFromReading(config.Config(kwargs)).updatefact(factclone, reading)
+        FieldUpdaterFromReading(Config(kwargs)).updatefact(factclone, reading)
         return factclone
 
 class FieldUpdaterFromExpressionTest(unittest.TestCase):
@@ -238,13 +238,14 @@ class FieldUpdaterFromExpressionTest(unittest.TestCase):
                   })
     
     def testUpdateReadingAndMeaning(self):
+        self.maxDiff = None
         self.assertEquals(
             self.updatefact(u"㝵", { "reading" : "", "meaning" : "", "mw" : "", "audio" : "", "color" : "", "weblinks" : "" },
                 colorizedpinyingeneration = True, colorizedcharactergeneration = False, meaninggeneration = True, detectmeasurewords = False, tonedisplay = "numeric", emphasisemainmeaning = False,
                 meaningnumbering = "arabicParens", colormeaningnumbers = True, meaningnumberingcolor = "#123456", meaningseperator = "commas", prefersimptrad = "trad",
                 audiogeneration = False, tonecolors = [u"#ff0000", u"#ffaa00", u"#00aa00", u"#0000ff", u"#545454"], weblinkgeneration = False), {
                     "reading" : u'<span style="color:#ffaa00">de2</span>',
-                    "meaning" : u'<span style="color:#123456">(1)</span> to obtain, <span style="color:#123456">(2)</span> archaic variant of <span style="color:#ffaa00">得</span> - <span style="color:#ffaa00">de2</span>, <span style="color:#123456">(3)</span> component in <span style="color:#0000ff">礙</span> - <span style="color:#0000ff">ai4</span> and <span style="color:#ffaa00">鍀</span> - <span style="color:#ffaa00">de2</span>',
+                    "meaning" : u'<span style="color:#123456">(1)</span> to obtain, <span style="color:#123456">(2)</span> archaic variant of <span style="color:#ffaa00">得</span> - <span style="color:#ffaa00">de2</span>',
                     "mw" : "", "audio" : "", "color" : "", "weblinks" : ""
                   })
     
@@ -335,7 +336,7 @@ class FieldUpdaterFromExpressionTest(unittest.TestCase):
                 colorizedpinyingeneration = False, colorizedcharactergeneration = False, meaninggeneration = True, detectmeasurewords = False,
                 tonedisplay = "numeric", audiogeneration = False, hanzimasking = False), {
                     "reading" : u'ni3 hao3, ni3 shi4 wo3 de peng2 you ma',
-                    "meaning" : u'Hello, you are my friend do<br /><span style="color:gray"><small>[Google Translate]</small></span><span> </span>',
+                    "meaning" : u'Hello, you\'re my friend.<br /><span style="color:gray"><small>[Google Translate]</small></span><span> </span>',
                     "mw" : "", "audio" : "", "color" : ""
                   })
 
@@ -401,7 +402,7 @@ class FieldUpdaterFromExpressionTest(unittest.TestCase):
         mediamanager = MockMediaManager(mediapacks)
         
         factclone = copy.deepcopy(fact)
-        FieldUpdaterFromExpression(notifier, mediamanager, config.Config(utils.updated({ "dictlanguage" : "en" }, kwargs))).updatefact(factclone, expression)
+        FieldUpdaterFromExpression(notifier, mediamanager, Config(utils.updated({ "dictlanguage" : "en" }, kwargs))).updatefact(factclone, expression)
         
         return notifier.infos, factclone
 

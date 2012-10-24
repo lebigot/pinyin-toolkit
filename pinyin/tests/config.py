@@ -6,11 +6,6 @@ from pinyin.config import *
 
 
 class ConfigTest(unittest.TestCase):
-    def testPickle(self):
-        import pickle
-        config = Config({ "setting" : "value", "cheese" : "mice" })
-        self.assertEquals(pickle.loads(pickle.dumps(config)).settings, config.settings)
-
     def testAttribute(self):
         self.assertEquals(Config({ "tonedisplay" : "value" }).tonedisplay, "value")
     
@@ -140,6 +135,31 @@ class ConfigTest(unittest.TestCase):
         
     def testShouldUseGoogleTranslateShouldUse(self):
         self.assertTrue(Config({ "fallbackongoogletranslate" : True }).shouldusegoogletranslate)
+
+    def testPickle(self):
+        import pickle
+        config = Config({ "setting" : "value", "cheese" : "mice" })
+        self.assertEquals(pickle.loads(pickle.dumps(config)).settings, config.settings)
+
+    def testPersist(self):
+        # clean up persisted settings are here remove first
+        if (os.path.exists(SETTINGS_FILE)):
+            os.unlink(SETTINGS_FILE)
+
+        config = getconfig()
+        self.assertEquals("simp", config.prefersimptrad)
+        self.assertEquals("en", config.dictlanguage)
+
+        config.prefersimptrad = "trad"
+        config.dictlanguage = "fr"
+        saveconfig(config)
+        
+        config = getconfig()
+        self.assertEquals("trad", config.prefersimptrad)
+        self.assertEquals("fr", config.dictlanguage)
+
+        # clean up persisted settings
+        os.unlink(SETTINGS_FILE)
 
 
 if __name__ == '__main__':

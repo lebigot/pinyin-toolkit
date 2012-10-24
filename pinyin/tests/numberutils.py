@@ -10,9 +10,9 @@ englishdict = dictionary.PinyinDictionary.loadall()('en')
 
 class ReadingFromNumberlikeTest(unittest.TestCase):
     def testIntegerReading(self):
-        self.assertReading("ba1 qian1 jiu3 bai3 er4 shi2 yi1", "8921")
-        self.assertReading("ba1 qian1 jiu3 bai3 er4 shi2 yi1", "8,921")
-        self.assertReading("san1 qian1 wan4 si4 bai3 wan4 san1 shi2 wan4 er4 wan4 si4 qian1 si4 bai3 san1 shi2 er4", "34,324,432")
+        self.assertReading("ba1 qian1 jiu3 Bai3 er4 shi2 yi1", "8921")
+        self.assertReading("ba1 qian1 jiu3 Bai3 er4 shi2 yi1", "8,921")
+        self.assertReading("san1 qian1 wan4 si4 bai3 wan4 san1 shi2 Wan4 er4 Wan4 si4 qian1 si4 Bai3 san1 shi2 er4", "34,324,432")
     
     def testDecimalReading(self):
         self.assertReading("er4 shi2 wu3 dian3 er4 wu3", "25.25")

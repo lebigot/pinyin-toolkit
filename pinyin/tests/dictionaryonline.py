@@ -55,7 +55,8 @@ class ParseGoogleResponseTest(unittest.TestCase):
         #self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : }'))
     
     def testParsingDictionaryWithEmptyField(self):
-        self.assertEquals(parsegoogleresponse('{ "hello" : }'), { "hello" : None })
+        self.assertEquals(parsegoogleresponse('{ "hello" : "" }'), { u"hello" : u"" })
+        self.assertEquals(parsegoogleresponse('{ "hello" : null }'), { u"hello" : None })
     
     def testParseErrorIfDictNotClosed(self):
         self.assertRaises(ValueError, lambda: parsegoogleresponse('{ "hello" : "world"'))
@@ -65,7 +66,7 @@ class ParseGoogleResponseTest(unittest.TestCase):
     #    self.assertRaises(ValueError, lambda: parsegoogleresponse(''))
     
     def testParsingEmpty(self):
-        self.assertEquals(parsegoogleresponse(''), None)
+        self.assertEquals(parsegoogleresponse('{}'), {})
 
 class GoogleTranslateTest(unittest.TestCase):
     def testTranslateNothing(self):

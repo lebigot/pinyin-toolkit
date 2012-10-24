@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import copy
+import cPickle
+import os
 
 import dictionaryonline
 import utils
 from logger import log
+
+SETTINGS_FILE = "ptkconfig.p"
 
 # TODO: expose these things in the UI
 #  * Audio file extension list
@@ -152,7 +156,7 @@ defaultsettings = {
         'trad'       : ["Traditional", "Trad", "Traditional Chinese", "HK", u'繁体字', u'繁体', u"繁體字", u"繁體"],
         'simp'       : ["Simplified", "Simp", "Simplified Chinese", u"简体字", u"简体"]
       })
-  }
+}
 
 updatecontrolflags = {
     'expression' : None,
@@ -230,6 +234,28 @@ def incorporatebykeydict(incorporations):
         return existing
     
     return inner
+
+
+"""
+Routines to fetch and save the config to the current Anki Profile
+"""
+
+def saveconfig(config):
+    settingsFile = open(SETTINGS_FILE, "wb")
+    cPickle.dump(config.settings, settingsFile)
+    settingsFile.flush()
+    settingsFile.close()
+
+def getconfig():
+    if (os.path.exists(SETTINGS_FILE)):
+        settingsFile = open(SETTINGS_FILE, "rb")
+        settings = cPickle.load(settingsFile)
+        settingsFile.close()
+        config = Config(settings)
+    else:
+        config = Config()
+    return config
+
 
 """
 Pinyin Toolkit configuration object: this will be pickled

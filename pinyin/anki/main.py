@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QDialog
+from aqt.qt import QDialog
 
 import os
 import shutil
 
-import pinyin.config
 from pinyin.db import *
 import pinyin.db.builder
 import pinyin.forms.builddb
 import pinyin.forms.builddbcontroller
-from pinyin.logger import log
 import pinyin.updater
 
 import hooks
@@ -21,8 +19,10 @@ import utils
 
 import statsandgraphs
 
+from pinyin.logger import log
+
 hookbuilders = hooks.hookbuilders + [
-    statsandgraphs.HanziGraphHook
+    #statsandgraphs.HanziGraphHook
   ]
 
 class PinyinToolkit(object):
@@ -53,33 +53,18 @@ class PinyinToolkit(object):
             # Eeek! Database building failed, so we better turn off the toolkit
             log.error("Database construction failed: disabling the Toolkit")
             return
-        
-        # Try and load the settings from the Anki config database
-        #settings = mw.pm.profile.get("pinyintoolkit")
-        settings = None
-        if settings is None:
-            # Initialize the configuration with default settings
-            config = pinyin.config.Config()
-            #utils.persistconfig(mw, config)
-            
-            # TODO: first-run activities:
-            #  1) Guide user around the interface and what they can do
-            #  2) Link to getting started guide
-        else:
-            # Initialize the configuration with the stored settings
-            config = pinyin.config.Config(settings)
-        
+
         # Build the updaters
         updaters = {
-            'expression' : pinyin.updater.FieldUpdaterFromExpression(thenotifier, themediamanager, config),
-            'reading'    : pinyin.updater.FieldUpdaterFromReading(config),
-            'meaning'    : pinyin.updater.FieldUpdaterFromMeaning(config),
-            'audio'      : pinyin.updater.FieldUpdaterFromAudio(thenotifier, themediamanager, config)
+            'expression' : pinyin.updater.FieldUpdaterFromExpression(thenotifier, themediamanager),
+            'reading'    : pinyin.updater.FieldUpdaterFromReading(),
+            'meaning'    : pinyin.updater.FieldUpdaterFromMeaning(),
+            'audio'      : pinyin.updater.FieldUpdaterFromAudio(thenotifier, themediamanager)
           }
         
         # Finally, build the hooks.  Make sure you store a reference to these, because otherwise they
         # get garbage collected, causing garbage collection of the actions they contain
-        self.hooks = [hookbuilder(mw, thenotifier, themediamanager, config, updaters) for hookbuilder in hookbuilders]
+        self.hooks = [hookbuilder(mw, thenotifier, themediamanager, updaters) for hookbuilder in hookbuilders]
         for hook in self.hooks:
             hook.install()
     
