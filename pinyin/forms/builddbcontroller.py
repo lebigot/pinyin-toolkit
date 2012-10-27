@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtCore import QThread, SIGNAL
-from PyQt4.QtGui import QDialog
-
 import cjklib
 import sys
 
+from aqt.qt import QThread, QDialog, SIGNAL
 from pinyin.logger import log
 
 

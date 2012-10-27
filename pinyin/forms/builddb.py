@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from aqt.qt import QDialog, QApplication, QWidget, Qt
 
 from pinyin.logger import log
 import pinyin.forms.generated.builddb
@@ -13,7 +12,7 @@ import pinyin.forms.generated.builddb
 #   License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 class BuildDB(QDialog):
     def __init__(self, parent):
-        QDialog.__init__(self, parent, Qt.Window)
+        QDialog.__init__(self, parent)
         self.parent = parent
         self.fieldWidgets = {}
         

@@ -202,22 +202,22 @@ class PreferencesHook(ToolMenuHook):
         # NB: must import these lazily to break a loop between preferencescontroller and here
         import pinyin.forms.preferences
         import pinyin.forms.preferencescontroller
-
+        
         log.info("User opened preferences dialog")
         
         # Instantiate and show the preferences dialog modally
         preferences = pinyin.forms.preferences.Preferences(self.mw)
-        controller = pinyin.forms.preferencescontroller.PreferencesController(preferences, self.notifier, self.mediamanager, config)
+        controller = pinyin.forms.preferencescontroller.PreferencesController(preferences, self.notifier, self.mediamanager, self.config)
         result = preferences.exec_()
         
         # We only need to change the configuration if the user accepted the dialog
         if result == QDialog.Accepted:
             # Update by the simple method of replacing the settings dictionaries: better make sure that no
             # other part of the code has cached parts of the configuration
-            config.settings = controller.model.settings
+            self.config.settings = controller.model.settings
             
             # Ensure this is saved in Anki's configuration
-            saveconfig(config)
+            saveconfig()
 
  
 class HelpOnToolsHook(ToolMenuHook):

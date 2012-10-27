@@ -38,7 +38,7 @@ class PinyinToolkit(object):
         #
         # Debugging this was a fair bit of work!
         from anki.hooks import addHook
-        #addHook("ptkinit", lambda: self.initialize(mw))
+        #addHook("init", lambda: self.initialize(mw))
         self.initialize(mw)
     
     def initialize(self, mw):

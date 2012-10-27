@@ -9,7 +9,6 @@ import dictionaryonline
 import utils
 from logger import log
 
-SETTINGS_FILE = "ptkconfig.p"
 
 # TODO: expose these things in the UI
 #  * Audio file extension list
@@ -240,21 +239,32 @@ def incorporatebykeydict(incorporations):
 Routines to fetch and save the config to the current Anki Profile
 """
 
-def saveconfig(config):
+SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "ptkconfig.p")
+
+# Config Singleton so plugin has one copy across all
+sCONFIG = None
+
+def saveconfig():
     settingsFile = open(SETTINGS_FILE, "wb")
-    cPickle.dump(config.settings, settingsFile)
+    cPickle.dump(sCONFIG.settings, settingsFile)
     settingsFile.flush()
     settingsFile.close()
 
 def getconfig():
-    if (os.path.exists(SETTINGS_FILE)):
+    global sCONFIG
+    if (sCONFIG is not None):
+        return sCONFIG
+    
+    try: 
         settingsFile = open(SETTINGS_FILE, "rb")
         settings = cPickle.load(settingsFile)
         settingsFile.close()
         config = Config(settings)
-    else:
+    except:
         config = Config()
-    return config
+
+    sCONFIG = config
+    return sCONFIG
 
 
 """
