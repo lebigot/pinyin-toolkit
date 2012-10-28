@@ -14,8 +14,6 @@ import pinyin.utils
 from pinyin.logger import log
 from pinyin.config import getconfig, saveconfig
 
-import utils
-
 class Hook(object):
     def __init__(self, mw, notifier, mediamanager, updaters):
         self.mw = mw
@@ -202,7 +200,6 @@ class PreferencesHook(ToolMenuHook):
         # NB: must import these lazily to break a loop between preferencescontroller and here
         import pinyin.forms.preferences
         import pinyin.forms.preferencescontroller
-        
         log.info("User opened preferences dialog")
         
         # Instantiate and show the preferences dialog modally

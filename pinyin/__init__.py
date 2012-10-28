@@ -5,18 +5,8 @@ import os
 # include the 3rd-party dependencies we have folded in
 import utils
 
-# cjklib uses standard library functions from Python 2.5: we emulate
-# them until Anki upgrades
-if sys.version_info[0:2] < (2, 5):
-    sys.path.append(utils.toolkitdir("pinyin", "vendor", "python25"))
-
-# Anki excludes some standard Python modules from its new 2.6 distribution. Why God, why?
-try:
-    import ConfigParser
-except ImportError:
-    sys.path.append(utils.toolkitdir("pinyin", "vendor", "perverseness"))
-
 # Sanity prevails from this point:
+sys.path.append(utils.toolkitdir("pinyin", "vendor", "python27"))
 sys.path.append(utils.toolkitdir("pinyin", "vendor", "cjklib"))
 sys.path.append(utils.toolkitdir("pinyin", "vendor", "sqlalchemy", "lib"))
 

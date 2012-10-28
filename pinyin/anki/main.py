@@ -15,7 +15,6 @@ import pinyin.updater
 import hooks
 import mediamanager
 import notifier
-import utils
 
 import statsandgraphs
 
