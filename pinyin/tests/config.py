@@ -152,7 +152,7 @@ class ConfigTest(unittest.TestCase):
 
         config.prefersimptrad = "trad"
         config.dictlanguage = "fr"
-        saveconfig(config)
+        saveconfig()
         
         config = getconfig()
         self.assertEquals("trad", config.prefersimptrad)

@@ -119,7 +119,10 @@ class HanziGraphHook(hooks.Hook):
     def suitableModelIds(self):
         # Find models in this deck with the correct tag. NB: must do a 'like' because we want
         # to match tags like "Vocab Mandarin" as well as plain "Mandarin"
-        return self.mw.deck.s.column0('select id from models where name like "%%%s%%"' % self.config.modelTag)
+        sqlStr = 'select id from models where true '
+        for tag in self.config.modelTags:
+            sqlStr += (' or name like "%%%s%%" ' % tag)
+        return self.mw.deck.s.column0(sqlStr)
 
     def hanziData(self):
         # If we have some data already, just give up

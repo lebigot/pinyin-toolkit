@@ -14,6 +14,8 @@ import pinyin.utils
 from pinyin.logger import log
 from pinyin.config import getconfig, saveconfig
 
+from copy import deepcopy
+
 class Hook(object):
     def __init__(self, mw, notifier, mediamanager, updaters):
         self.mw = mw
@@ -23,26 +25,41 @@ class Hook(object):
         self.config = getconfig()
 
 class FocusHook(Hook):
-    def onFocusLost(self, fact, field):
-        log.info("User moved focus from the field %s", field.name)
+
+    # Called by anki editor (aqt.editor)
+    # Requires boolean return value: true if note was updated
+    def onFocusLost(self, flag, note, fldIdx):
+        savedNoteValues = deepcopy(note.values())
+
+        fieldNames = self.mw.col.models.fieldNames(note.model())
+        currentFieldName = fieldNames[fldIdx]
+        log.info("User moved focus from the field %s", currentFieldName)
         
         # Are we not in a Mandarin model?
-        if not(self.config.modelTag in fact.model.name):
-            return
+        if not(pinyin.utils.ismandarinmodel(note.model()['name'])):
+            return flag
         
         # Need a fact proxy because the updater works on dictionary-like objects
-        factproxy = pinyin.factproxy.FactProxy(self.config.candidateFieldNamesByKey, fact)
+        factproxy = pinyin.factproxy.FactProxy(self.config.candidateFieldNamesByKey, note)
         
         # Find which kind of field we have just moved off
         updater = None
         for key, fieldname in factproxy.fieldnames.items():
-            if field.name == fieldname:
+            if currentFieldName == fieldname:
                 updater = self.updaters.get(key)
                 break
 
         # Update the card, ignoring any errors
-        if updater:
-            pinyin.utils.suppressexceptions(lambda: updater.updatefact(factproxy, field.value))
+        fieldValue = note.fields[fldIdx]
+        if not updater:
+            return flag
+
+        pinyin.utils.suppressexceptions(
+            lambda: updater.updatefact(factproxy, fieldValue))
+
+        noteChanged = (savedNoteValues != note.values())
+
+        return noteChanged
     
     def install(self):
         from anki.hooks import addHook, remHook
@@ -52,7 +69,7 @@ class FocusHook(Hook):
         log.info("Installing focus hook")
         
         # Unconditionally add our new hook to Anki
-        addHook('note.focusLost', self.onFocusLost)
+        addHook('editFocusLost', self.onFocusLost)
 
 class FieldShrinkingHook(Hook):
     def adjustFieldHeight(self, widget, field):
@@ -151,7 +168,9 @@ class MassFillHook(ToolMenuHook):
         field = self.__class__.field
         log.info("User triggered missing information fill for %s" % field)
         
-        queryStr = "deck:current or note:*" + self.config.modelTag + "*"
+        queryStr = "deck:current "
+        for tag in self.config.modelTags:
+            queryStr += " or note:*" + tag + "* "
         notes = Finder(self.mw.col).findNotes(queryStr)
 
         for noteId in notes:
@@ -243,7 +262,7 @@ hookbuilders = [
     FocusHook,
 
     # Widget adjusting hooks
-    FieldShrinkingHook,
+    #FieldShrinkingHook,
 
     # Keybord hooks
     #ColorShortcutKeysHook,

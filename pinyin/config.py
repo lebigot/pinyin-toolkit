@@ -134,9 +134,8 @@ defaultsettings = {
       (u'雅虎',     'Zidian',                  'http://zidian.cn.yahoo.com/result_cn2en.html?p={searchTerms}')
     ],
     
-    # Only decks with this tag are processed
-    # Since Anki 1.2 models do not have tags, so we just look for this string in the name
-    "modelTag" : "Mandarin",
+    # Only decks with these tags in them are processed
+    "modelTags" : ["Mandarin", "Chinese"],
 
     # Field names are listed in descending order of priority
     "candidateFieldNamesByKey" : utils.let(

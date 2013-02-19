@@ -78,7 +78,7 @@ class PinyinDictionaryTest(unittest.TestCase):
 
     def testWordsWhosePrefixIsNotInDictionary(self):
         self.assertEquals(flatten(germandict.reading(u"生日")), "sheng1 ri4")
-        self.assertEquals(self.flatmeanings(germandict, u"生日"), [u"Geburtstag (u.E.) (S)"])
+        self.assertEquals(self.flatmeanings(germandict, u"生日"), [u"Geburtstag (S)"])
 
     def testProperName(self):
         self.assertEquals(flatten(englishdict.reading(u"珍・奥斯汀")), u"Zhen1 · Ao4 si1 ting1")

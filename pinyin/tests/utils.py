@@ -166,5 +166,12 @@ class FactoryDictTest(unittest.TestCase):
         self.assertEquals(dict[2], "Hello")
         self.assertEquals(dict[3], "Bye")
 
+class isMandarinModelTest(unittest.TestCase):
+    def testCheck(self):
+        self.assertTrue(ismandarinmodel("Chinese (compat)"))
+        self.assertTrue(ismandarinmodel("Mandarin"))
+        self.assertTrue(ismandarinmodel("HSK 1 Mandarin"))
+        self.assertFalse(ismandarinmodel("Japanese Deck"))
+    
 if __name__ == '__main__':
     unittest.main()

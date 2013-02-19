@@ -236,6 +236,17 @@ def filecontents(filepath):
     return contents
 
 """
+Is the model a Mandarin model. Look for tags in the name.
+"""
+def ismandarinmodel(modelName):
+    from pinyin.config import getconfig
+    modelTags = getconfig().modelTags
+    for tag in modelTags:
+        if tag in modelName:
+            return True
+    return False
+
+"""
 Return the first item from the list or the other argument.
 """
 def heador(list, orelse):
