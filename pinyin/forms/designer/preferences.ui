@@ -633,6 +633,53 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="modelTagsTab">
+      <attribute name="title">
+       <string>Model</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_15">
+       <item>
+        <widget class="QGroupBox" name="modelTagsGroupBox">
+         <property name="title">
+          <string>Model Name</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <widget class="QLabel" name="modelTagsLabel">
+            <property name="text">
+             <string>Enter the model names or part of the model names you would like the Pinyin Toolkit to work with. Seperate multiple names with commas.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+            <widget class="QLineEdit" name="modelTags"/>
+          </item>
+           <!--widget class="QCheckBox" name="forcePinyinToSoundTagsCheckBox">
+            <property name="text">
+             <string>Replace pinyin in the audio field with [sound] tags</string>
+            </property>
+           </widget-->
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

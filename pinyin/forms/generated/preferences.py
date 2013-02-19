@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'designer/preferences.ui'
 #
-# Created: Mon Oct 22 18:36:36 2012
+# Created: Tue Feb 19 19:36:49 2013
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -329,6 +329,25 @@ class Ui_Preferences(object):
         self.verticalLayout_10.addLayout(self.horizontalLayout)
         self.verticalLayout_9.addWidget(self.audioPacksGroupBox)
         self.tabWidget.addTab(self.audioTab, _fromUtf8(""))
+        self.modelTagsTab = QtGui.QWidget()
+        self.modelTagsTab.setObjectName(_fromUtf8("modelTagsTab"))
+        self.verticalLayout_15 = QtGui.QVBoxLayout(self.modelTagsTab)
+        self.verticalLayout_15.setObjectName(_fromUtf8("verticalLayout_15"))
+        self.modelTagsGroupBox = QtGui.QGroupBox(self.modelTagsTab)
+        self.modelTagsGroupBox.setObjectName(_fromUtf8("modelTagsGroupBox"))
+        self.verticalLayout_16 = QtGui.QVBoxLayout(self.modelTagsGroupBox)
+        self.verticalLayout_16.setObjectName(_fromUtf8("verticalLayout_16"))
+        self.modelTagsLabel = QtGui.QLabel(self.modelTagsGroupBox)
+        self.modelTagsLabel.setWordWrap(True)
+        self.modelTagsLabel.setObjectName(_fromUtf8("modelTagsLabel"))
+        self.verticalLayout_16.addWidget(self.modelTagsLabel)
+        self.modelTags = QtGui.QLineEdit(self.modelTagsGroupBox)
+        self.modelTags.setObjectName(_fromUtf8("modelTags"))
+        self.verticalLayout_16.addWidget(self.modelTags)
+        self.verticalLayout_15.addWidget(self.modelTagsGroupBox)
+        spacerItem4 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_15.addItem(spacerItem4)
+        self.tabWidget.addTab(self.modelTagsTab, _fromUtf8(""))
         self.gridLayout.addWidget(self.tabWidget, 0, 1, 1, 1)
 
         self.retranslateUi(Preferences)
@@ -391,4 +410,7 @@ class Ui_Preferences(object):
         self.installMandarinSoundsButton.setText(QtGui.QApplication.translate("Preferences", "Install Chinese-Lessons.com Mandarin Sounds Pack", None, QtGui.QApplication.UnicodeUTF8))
         self.openAudioPackDirectoryButton.setText(QtGui.QApplication.translate("Preferences", "Open Audio Pack Directory", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.audioTab), QtGui.QApplication.translate("Preferences", "Audio", None, QtGui.QApplication.UnicodeUTF8))
+        self.modelTagsGroupBox.setTitle(QtGui.QApplication.translate("Preferences", "Model Name", None, QtGui.QApplication.UnicodeUTF8))
+        self.modelTagsLabel.setText(QtGui.QApplication.translate("Preferences", "Enter the model names or part of the model names you would like the Pinyin Toolkit to work with. Seperate multiple names with commas.", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.modelTagsTab), QtGui.QApplication.translate("Preferences", "Model", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'designer/builddb.ui'
 #
-# Created: Mon Oct 22 18:36:36 2012
+# Created: Tue Feb 19 19:36:49 2013
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
