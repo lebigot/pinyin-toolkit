@@ -657,11 +657,6 @@
           <item>
             <widget class="QLineEdit" name="modelTags"/>
           </item>
-           <!--widget class="QCheckBox" name="forcePinyinToSoundTagsCheckBox">
-            <property name="text">
-             <string>Replace pinyin in the audio field with [sound] tags</string>
-            </property>
-           </widget-->
          </layout>
         </widget>
        </item>

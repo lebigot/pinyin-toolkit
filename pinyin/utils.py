@@ -240,7 +240,7 @@ Is the model a Mandarin model. Look for tags in the name.
 """
 def ismandarinmodel(modelName):
     from pinyin.config import getconfig
-    modelTags = getconfig().modelTags
+    modelTags = getconfig().getmodeltagslist()
     for tag in modelTags:
         if tag in modelName:
             return True

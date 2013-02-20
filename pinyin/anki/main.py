@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from aqt.qt import QDialog
-
 import os
 import shutil
+
+import aqt.addons
+
+from anki.hooks import wrap
+from aqt.qt import QDialog
 
 from pinyin.db import *
 import pinyin.db.builder
@@ -18,6 +21,7 @@ import notifier
 
 import statsandgraphs
 
+from pinyin.config import getconfig
 from pinyin.logger import log
 
 hookbuilders = hooks.hookbuilders + [
@@ -66,7 +70,26 @@ class PinyinToolkit(object):
         self.hooks = [hookbuilder(mw, thenotifier, themediamanager, updaters) for hookbuilder in hookbuilders]
         for hook in self.hooks:
             hook.install()
-    
+
+        # Add menu items by wrap() ing the rebuildAddonsMenu
+        # If we do this in a hook as above the menu is not yet
+        # created. Using wrap like this ensures we are called after
+        # our menu is created.
+        def ptkRebuildAddonsMenu(self):
+            ptkMenu = None
+            for menu in self._menus:
+                if menu.title() == "Pinyin Toolkit":
+                    ptkMenu = menu
+                    break
+
+            ptkMenu.addSeparator()
+            config = getconfig()
+            hooks.installPrefs(ptkMenu, mw, config, thenotifier, 
+                                themediamanager)
+            hooks.installHelp(ptkMenu, mw)
+
+        aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, ptkRebuildAddonsMenu) 
+            
         # Tell Anki about the plugin
         # TODO: revisit this. upgrade to 2.0 call has changed to registerAddon but it doesn't do anything ...
         #mw.addonManager.registerAddon("Mandarin Chinese Pinyin Toolkit", 4)

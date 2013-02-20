@@ -46,6 +46,7 @@ class PreferencesController(object):
         self.setUpFieldImprovers()
         self.setUpColors()
         self.setUpAudio()
+        self.setUpModelName()
 
         # Use the mappings to reflect the initial setting values into the controls and preview pane
         self.updateView()
@@ -180,7 +181,10 @@ class PreferencesController(object):
         # Connect up the two buttons to the event handlers
         self.view.connect(self.view.controls.installMandarinSoundsButton, SIGNAL("clicked()"), lambda: self.installMandarinSounds())
         self.view.connect(self.view.controls.openAudioPackDirectoryButton, SIGNAL("clicked()"), lambda: self.openAudioPackDirectory())
-    
+
+    def setUpModelName(self):
+        self.registerTextMapping("modelTags", self.view.controls.modelTags)
+  
     def addComboItem(self, combo, icon, name, data):
         if icon:
             combo.addItem(QIcon(icon), name, data)

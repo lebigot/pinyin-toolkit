@@ -135,7 +135,7 @@ defaultsettings = {
     ],
     
     # Only decks with these tags in them are processed
-    "modelTags" : ["Mandarin", "Chinese"],
+    "modelTags" : "Mandarin,Chinese",
 
     # Field names are listed in descending order of priority
     "candidateFieldNamesByKey" : utils.let(
@@ -385,6 +385,9 @@ class Config(object):
             return '<span style="color:' + self.meaningnumberingcolor + '">' + self.hanzimaskingcharacter + '</span>'
         else:
             return self.hanzimaskingcharacter
+
+    def getmodeltagslist(self):
+        return self.modelTags.split(',')
     
     def getshouldusegoogletranslate(self):
         # Fail fast if the user has turned Google off:

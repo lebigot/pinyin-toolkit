@@ -23,6 +23,14 @@ class Hook(object):
         self.mediamanager = mediamanager
         self.updaters = updaters
         self.config = getconfig()
+   
+class ToolMenuHook(Hook):
+    pinyinToolkitMenu = None
+    
+    def install(self):
+        # Install menu item
+        log.info("Installing a menu hook (%s)", type(self))
+
 
 class FocusHook(Hook):
 
@@ -132,34 +140,6 @@ class HelpHook(Hook):
         self.mw.connect(self.action, SIGNAL('triggered()'), lambda: QDesktopServices.openUrl(helpUrl))
 
    
-class ToolMenuHook(Hook):
-    pinyinToolkitMenu = None
-    
-    def install(self):
-        # Install menu item
-        log.info("Installing a menu hook (%s)", type(self))
-        
-        # Build and install the top level menu if it doesn't already exist
-        if ToolMenuHook.pinyinToolkitMenu is None:
-            ToolMenuHook.pinyinToolkitMenu = QMenu("Pinyin Toolkit", self.mw.form.menuTools)
-            self.mw.form.menuTools.addMenu(ToolMenuHook.pinyinToolkitMenu)
-
-        
-        # Store the action on the class.  Storing a reference to it is necessary to avoid it getting garbage collected.
-        self.action = QAction(self.__class__.menutext, self.mw)
-        self.action.setStatusTip(self.__class__.menutooltip)
-        self.action.setEnabled(True)
-        
-        if self.__class__.menutext == "About" or self.__class__.menutext == "Preferences":
-            ToolMenuHook.pinyinToolkitMenu.addSeparator()
-
-        # HACK ALERT: must use lambda here, or the signal never gets raised! I think this is due to garbage collection...
-        # We try and make sure that we don't run the action if there is no deck presently, to at least suppress some errors
-        # in situations where the users select the menu items (this is possible on e.g. OS X). It would be better to disable
-        # the menu items entirely in these situations, but there is no suitable hook for that presently.
-        self.mw.connect(self.action, SIGNAL('triggered()'), lambda: self.triggered())
-        ToolMenuHook.pinyinToolkitMenu.addAction(self.action)
-
 class MassFillHook(ToolMenuHook):
     def triggered(self):
         if self.mw.web.key == "deckBrowser":
@@ -169,7 +149,7 @@ class MassFillHook(ToolMenuHook):
         log.info("User triggered missing information fill for %s" % field)
         
         queryStr = "deck:current "
-        for tag in self.config.modelTags:
+        for tag in self.config.getmodeltagslist():
             queryStr += " or note:*" + tag + "* "
         notes = Finder(self.mw.col).findNotes(queryStr)
 
@@ -211,40 +191,6 @@ class ReformatReadingsHook(MassFillHook):
     
     notification = "All readings have been successfully reformatted."
 
-class PreferencesHook(ToolMenuHook):
-    menutext = "Preferences"
-    menutooltip = "Configure the Pinyin Toolkit"
-    
-    def triggered(self):
-        # NB: must import these lazily to break a loop between preferencescontroller and here
-        import pinyin.forms.preferences
-        import pinyin.forms.preferencescontroller
-        log.info("User opened preferences dialog")
-        
-        # Instantiate and show the preferences dialog modally
-        preferences = pinyin.forms.preferences.Preferences(self.mw)
-        controller = pinyin.forms.preferencescontroller.PreferencesController(preferences, self.notifier, self.mediamanager, self.config)
-        result = preferences.exec_()
-        
-        # We only need to change the configuration if the user accepted the dialog
-        if result == QDialog.Accepted:
-            # Update by the simple method of replacing the settings dictionaries: better make sure that no
-            # other part of the code has cached parts of the configuration
-            self.config.settings = controller.model.settings
-            
-            # Ensure this is saved in Anki's configuration
-            saveconfig()
-
- 
-class HelpOnToolsHook(ToolMenuHook):
-    menutext = 'About'
-    menutooltip = 'Help for the Pinyin Toolkit available at our website.'
-
-    def triggered(self):
-        helpUrl = QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
-        QDesktopServices.openUrl(helpUrl)
-
-
 class TagRemovingHook(Hook):
     def filterHtml(self, html, _card):
         return pinyin.factproxy.unmarkhtmlgeneratedfields(html)
@@ -270,6 +216,44 @@ hookbuilders = [
     # Menu hooks
     MissingInformationHook,
     ReformatReadingsHook,
-    PreferencesHook,
-    HelpOnToolsHook,
   ]
+
+
+# Create action with details and add to menu
+def createAction(menu, mw, title, statusTip, function):
+    action = QAction(mw)
+    action.setText(title)
+    action.setStatusTip(statusTip)
+    action.setEnabled(True)
+    mw.connect(action, SIGNAL('triggered()'), function)
+    menu.addAction(action)
+    return action
+
+def installHelp(menu, mw):
+    title = "About" 
+    tip = "Help for the Pinyin Toolkit available at our website"
+    helpUrl = QUrl(u"http://batterseapower.github.com/pinyin-toolkit/")
+    function = lambda: QDesktopServices.openUrl(helpUrl)
+    createAction(menu, mw, title, tip, function)
+
+def installPrefs(menu, mw, config, notifier, mediamanager):
+    title = "Preferences"
+    tip = "Configure the Pinyin Toolkit"
+    function = lambda: openPreferences(mw, config, notifier, mediamanager)
+    createAction(menu, mw, title, tip, function)
+
+def openPreferences(mw, config, notifier, mediamanager):
+    # NB: must import these lazily to break a loop between preferencescontroller and here
+    import pinyin.forms.preferences
+    import pinyin.forms.preferencescontroller
+    log.info("User opened preferences dialog")
+    
+    # Instantiate and show the preferences dialog modally
+    preferences = pinyin.forms.preferences.Preferences(mw)
+    controller = pinyin.forms.preferencescontroller.PreferencesController(preferences, notifier, mediamanager, config)
+    result = preferences.exec_()
+    
+    if result == QDialog.Accepted:
+        config.settings = controller.model.settings
+        saveconfig()
+
