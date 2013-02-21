@@ -168,8 +168,8 @@ class FactoryDictTest(unittest.TestCase):
 
 class isMandarinModelTest(unittest.TestCase):
     def testCheck(self):
-        self.assertTrue(ismandarinmodel("Chinese (compat)"))
         self.assertTrue(ismandarinmodel("Mandarin"))
+        self.assertTrue(ismandarinmodel(" Mandarin "))
         self.assertTrue(ismandarinmodel("HSK 1 Mandarin"))
         self.assertFalse(ismandarinmodel("Japanese Deck"))
     
