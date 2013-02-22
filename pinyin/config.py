@@ -135,7 +135,7 @@ defaultsettings = {
     ],
     
     # Only decks with these tags in them are processed
-    "modelTags" : "Mandarin,Chinese",
+    "modelTags" : "Mandarin",
 
     # Field names are listed in descending order of priority
     "candidateFieldNamesByKey" : utils.let(

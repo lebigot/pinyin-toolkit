@@ -173,6 +173,7 @@ hookbuilders = [
 def buildHooks(menu, mw, config, notifier, mediamanager, updaters):
     buildHookMissingInformation(menu, mw, config, notifier, updaters)
     buildHookReformatReadings(menu, mw, config, notifier, updaters)
+    menu.addSeparator()
     buildHookPreferences(menu, mw, config, notifier, mediamanager)
     buildHookHelp(menu, mw)
 
