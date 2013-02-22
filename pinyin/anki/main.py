@@ -71,10 +71,8 @@ class PinyinToolkit(object):
         for hook in self.hooks:
             hook.install()
 
-        # Add menu items by wrap() ing the rebuildAddonsMenu
-        # If we do this in a hook as above the menu is not yet
-        # created. Using wrap like this ensures we are called after
-        # our menu is created.
+        # add hooks and menu items
+        # use wrap() instead of addHook to ensure menu already created 
         def ptkRebuildAddonsMenu(self):
             ptkMenu = None
             for menu in self._menus:
@@ -84,9 +82,8 @@ class PinyinToolkit(object):
 
             ptkMenu.addSeparator()
             config = getconfig()
-            hooks.installPrefs(ptkMenu, mw, config, thenotifier, 
-                                themediamanager)
-            hooks.installHelp(ptkMenu, mw)
+            hooks.buildHooks(ptkMenu, mw, config, thenotifier, themediamanager,
+                               updaters)
 
         aqt.addons.AddonManager.rebuildAddonsMenu = wrap(aqt.addons.AddonManager.rebuildAddonsMenu, ptkRebuildAddonsMenu) 
             
