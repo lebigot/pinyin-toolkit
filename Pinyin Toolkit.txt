@@ -5,14 +5,21 @@ Thanks for downloading the Pinyin Toolkit!
 Please see our Wiki for all the documentation:
 http://wiki.github.com/batterseapower/pinyin-toolkit
 
-If you get stuck, email us:
-pinyintoolkit@gmail.com
+If you get stuck, post in the anki help forum: https://groups.google.com/forum/#!forum/ankisrs
 
 If you would prefer to report a bug using the bug tracker, you can do so here:
-http://github.com/batterseapower/pinyin-toolkit/issues
+http://github.com/chatch/pinyin-toolkit/issues
 
 
 h1. Changelog
+
+h2. Version 0.7 (23/02/2013)
+
+| Chris Hatch | "Email":mailto:foonugget@gmail.com | "Website":http://github.com/chatch/pinyin-toolkit |
+
+* Update for Anki 2.0 
+* Core features working - fill data on edit, bulk fill missing information and readings, toolkit preferences dialog. 
+* Features not yet working - color shortcut keys, stats and graphs, dictionary database rebuilds
 
 h2. Version 0.6.6 (20/02/2011)
 
