@@ -70,7 +70,8 @@ def tonesandhi(words):
     applyvisitor = ApplyToneContourVisitor(tonecontourqueue)
     for word in words:
         finalwords.append(word.map(applyvisitor))
-        assert tonecontourqueue.pop() == "~"
+        p = tonecontourqueue.pop()
+        assert p == "~"
     return finalwords
 
 class GatherToneContourVisitor(TokenVisitor):
@@ -93,7 +94,8 @@ class ApplyToneContourVisitor(TokenVisitor):
     
     def visitText(self, text):
         if len(text.strip()) != 0:
-            assert self.tonecontourqueue.pop() in "_"
+            p = self.tonecontourqueue.pop()
+            assert p in "_"
         return text
 
     def visitPinyin(self, pinyin):
