@@ -1,7 +1,7 @@
-pinyin-toolkit
+Pinyin Toolkit
 ==============
 
-An addon for the Anki Spaced Repetition System (http://ankisrs.net/)
+An addon for Mandarin Chinese pinyin in the Anki Spaced Repetition System (http://ankisrs.net/)
 
 Addon page at https://ankiweb.net/shared/info/2554990764<br>
 Documentation at http://batterseapower.github.io/pinyin-toolkit/<br> 
