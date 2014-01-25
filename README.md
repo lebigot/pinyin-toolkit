@@ -13,7 +13,8 @@ List of issues at https://github.com/chatch/pinyin-toolkit/issues<br>
 git clone https://github.com/chatch/pinyin-toolkit.git
 git submodule init
 git submodule update
+cd pinyin-toolkit
 python pinyin/db/builder.py
-./make_zip.sh                   # build package for upload to anki addons page <br>
+./make_zip.sh                   # build package for upload to anki addons page
 cp -rf * ~/Anki/addons          # install direct to local addons directory
 ```
